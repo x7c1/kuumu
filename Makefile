@@ -1,4 +1,4 @@
-.PHONY: claude-setup setup-instance claude-run claude
+.PHONY: claude-setup setup-instance claude-run claude pr
 
 claude-setup:
 	./scripts/setup-claude-container.sh
@@ -10,3 +10,6 @@ claude-run: claude-setup setup-instance
 	docker-compose run --rm claude-code
 
 claude: claude-run
+
+pr:
+	./scripts/create-pr-auto.sh

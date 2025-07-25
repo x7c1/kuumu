@@ -13,6 +13,7 @@ services:
       - ~/.claude/.credentials.json:/home/developer/.claude/.credentials.json
       - ~/.gitconfig:/home/developer/.gitconfig
       - ./claude.local/shared/.npm-global:/home/developer/.npm-global
+      - ./claude.local/shared/.config/gh:/home/developer/.config/gh
     stdin_open: true
     tty: true
     working_dir: /projects/${INSTANCE}
