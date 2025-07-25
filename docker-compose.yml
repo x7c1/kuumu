@@ -3,12 +3,12 @@ version: '3.8'
 services:
   claude-code:
     build: .
-    container_name: claude-code-${INSTANCE}
+    container_name: claude-code-${ROLE}
     volumes:
-      - .:/projects/${INSTANCE}
+      - .:/projects/${ROLE}
       - ./claude.local/shared:/home/developer/.claude
       - ./claude.local/shared/.claude.json:/home/developer/.claude.json
-      - ./claude.local/${INSTANCE}/.bash_history:/home/developer/.bash_history
+      - ./claude.local/${ROLE}/.bash_history:/home/developer/.bash_history
       - ~/.claude/CLAUDE.md:/home/developer/.claude/CLAUDE.md
       - ~/.claude/.credentials.json:/home/developer/.claude/.credentials.json
       - ~/.gitconfig:/home/developer/.gitconfig
@@ -17,5 +17,5 @@ services:
       - ./claude.local/shared/.config/gh:/home/developer/.config/gh
     stdin_open: true
     tty: true
-    working_dir: /projects/${INSTANCE}
-    command: bash -c "/projects/${INSTANCE}/scripts/start-claude-code.sh; exec bash"
+    working_dir: /projects/${ROLE}
+    command: bash -c "/projects/${ROLE}/scripts/start-claude-code.sh; exec bash"

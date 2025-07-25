@@ -1,12 +1,15 @@
-.PHONY: claude-setup setup-instance claude-run claude pr
+.PHONY: claude-setup setup-role claude-run claude pr
 
 claude-setup:
 	./scripts/setup-claude-container.sh
 
-setup-instance:
-	./scripts/setup-claude-instance.sh
+setup-role:
+	./scripts/setup-claude-role.sh
 
-claude-run: claude-setup setup-instance
+claude-run: claude-setup setup-role
+	@if [ -n "$$TMUX" ] && [ -n "$$ROLE" ]; then \
+		tmux rename-window "$$ROLE"; \
+	fi
 	docker-compose run --rm claude-code
 
 claude: claude-run
