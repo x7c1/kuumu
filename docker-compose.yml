@@ -12,6 +12,7 @@ services:
       - ~/.claude/CLAUDE.md:/home/developer/.claude/CLAUDE.md
       - ~/.claude/.credentials.json:/home/developer/.claude/.credentials.json
       - ~/.gitconfig:/home/developer/.gitconfig
+      - ~/.ssh:/home/developer/.ssh:ro
       - ./claude.local/shared/.npm-global:/home/developer/.npm-global
       - ./claude.local/shared/.config/gh:/home/developer/.config/gh
     stdin_open: true
