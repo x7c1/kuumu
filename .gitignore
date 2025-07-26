@@ -7,9 +7,21 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# node.js directories
 node_modules
 dist
 dist-ssr
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Tauri generated files
+gen
+
+# Rust artifacts
+target
+
+# Local files
 *.local
 
 # Editor directories and files

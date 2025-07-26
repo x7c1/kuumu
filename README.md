@@ -1,9 +1,36 @@
-# kuumu
+# Kuumu
 
-Tauri + Vanilla TS
+Tauri + Vanilla TS Monorepo
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.
+A scalable monorepo structure supporting multiple applications and shared libraries.
 
-## Recommended IDE Setup
+## Development Commands
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+### Desktop Application
+
+```bash
+# Start development server with hot reload
+npm run tauri:desktop -- dev
+
+# Build frontend only
+npm run build:desktop
+
+# Preview built frontend
+npm run preview:desktop
+
+# Build complete desktop application
+npm run tauri:desktop -- build
+```
+
+### Backend Development
+
+```bash
+# Build Rust backend
+cargo build
+
+# Run tests
+cargo test
+
+# Check code without building
+cargo check
+```
