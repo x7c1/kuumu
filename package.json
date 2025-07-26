@@ -3,19 +3,18 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "workspaces": [
+    "frontend/apps/*",
+    "frontend/libs/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2"
+    "dev:desktop": "npm run dev -w kuumu-desktop",
+    "build:desktop": "npm run build -w kuumu-desktop",
+    "preview:desktop": "npm run preview -w kuumu-desktop",
+    "tauri:desktop": "npm run tauri -w kuumu-desktop"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
-    "vite": "^6.0.3",
     "typescript": "~5.6.2"
   }
 }
