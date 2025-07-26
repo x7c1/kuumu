@@ -2,7 +2,7 @@
 
 if [ -z "$ROLE" ]; then
     echo "Error: ROLE environment variable is required"
-    echo "Usage: ROLE=frontend make claude"
+    echo "Usage: ROLE=frontend make workspace"
     exit 1
 fi
 

@@ -1,4 +1,4 @@
-.PHONY: claude-setup setup-role claude-run claude pr
+.PHONY: claude-setup setup-role claude-run workspace pr
 
 claude-setup:
 	./scripts/setup-claude-container.sh
@@ -12,7 +12,7 @@ claude-run: claude-setup setup-role
 	fi
 	docker-compose run --rm claude-code
 
-claude: claude-run
+workspace: claude-run
 
 pr:
 	./scripts/create-pr-auto.sh
