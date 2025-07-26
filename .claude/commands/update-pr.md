@@ -19,10 +19,10 @@ This command will:
 
 ## Title Generation
 
-The title will be generated based on:
+The title will be generated within 60 characters based on:
 - Primary type of changes (feat, fix, docs, etc.)
 - Main scope or component affected
-- Concise description of the overall change
+- Most concise description of the key change
 
 ## Description Generation
 
@@ -61,5 +61,5 @@ For a branch with commits like:
 - `docs(auth): update authentication guide`
 
 Would generate:
-- **Title**: `feat(auth): add OAuth2 integration with error handling`
+- **Title**: `feat(auth): add OAuth2 integration` (34 characters)
 - **Description**: Summary of OAuth2 implementation, token refresh fixes, and documentation updates
