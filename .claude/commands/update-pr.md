@@ -18,7 +18,7 @@ This command will:
 - Analyze the commit history of the branch to understand the changes
 - Generate an appropriate title and description based on the commits
 - Select and apply appropriate labels based on the type and scope of changes
-- Update the pull request with the generated title, description, and labels
+- Use `./scripts/update-pr.sh <pr_number> <title> <description> [labels]` to update the pull request
 
 ## Title Generation
 
@@ -56,6 +56,18 @@ No labels will be applied for chore, test, or other commit types.
 - GitHub CLI (`gh`) must be installed and authenticated
 - Must be in a git repository with a remote origin
 
+## Script Usage
+
+The `update-pr.sh` script requires arguments in this order:
+```bash
+./scripts/update-pr.sh <pr_number> <title> <description> [labels]
+```
+
+- `pr_number`: Pull request number (required)
+- `title`: PR title, max 60 characters (required)
+- `description`: PR description (required)
+- `labels`: Comma-separated labels (optional)
+
 ## Examples
 
 For a branch with commits like:
@@ -66,3 +78,4 @@ For a branch with commits like:
 Would generate:
 - **Title**: `feat(auth): add OAuth2 integration` (34 characters)
 - **Description**: Summary of OAuth2 implementation, token refresh fixes, and documentation updates
+- **Script call**: `./scripts/update-pr.sh 123 "feat(auth): add OAuth2 integration" "Generated description..." "enhancement"`
