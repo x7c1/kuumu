@@ -8,13 +8,13 @@ Initiates the planning process for any development task including new features, 
 ```
 
 ## Process
-1. Conduct requirements interview to understand the task
-2. Determine appropriate directory name with sequential numbering
-3. Create project directory structure in `docs/issues/{year}/{number}-{descriptive-name}/`
-4. Create initial drafts of planning document (`plan.md`) and architecture decision record (`adr.md`)
-5. Present drafts to user for review and feedback
-6. Make requested modifications to the documents
-7. Mark the planning documents as complete after user approval
+- Conduct requirements interview to understand the task
+- Determine appropriate directory name with sequential numbering
+- Create project directory structure in `docs/issues/{year}/{number}-{descriptive-name}/`
+- Create initial draft of planning document (`plan.md`)
+- Present drafts to user for review and feedback
+- Make requested modifications to the documents
+- Mark the planning documents as complete after user approval
 
 ---
 
@@ -39,18 +39,22 @@ Please provide details about the work you want to implement or fix:
 Based on this information, I will create a project directory structure in `docs/issues/{current_year}/` with appropriate numbering and descriptive name.
 
 First, I will:
-1. Determine the current year
-2. Create the year directory if it doesn't exist
-3. Check existing items in that year's directory to determine the next sequential number (starting from 1 for each year)
-4. Create project directory with format `{number}-{descriptive-name}`
-5. Create initial drafts of `plan.md` and `adr.md` within the project directory
-6. Present the drafts for your review and incorporate any requested changes
-7. Mark the documents as complete once you approve the final versions
+- Determine the current year
+- Create the year directory if it doesn't exist
+- Check existing items in that year's directory to determine the next sequential number (starting from 1 for each year)
+- Create project directory with format `{number}-{descriptive-name}`
+- Create initial draft of `plan.md` within the project directory
+- Present the drafts for your review and incorporate any requested changes
+- Mark the documents as complete once you approve the final versions
 
 ## Document Structure
 Each planning project will contain:
 - `plan.md`: Main planning document with requirements, implementation plan, and timeline
-- `adr.md`: Architecture Decision Record documenting key technical decisions and rationale (optional for complex projects)
+  - Use bullet points instead of numbered lists for easy maintenance
+  - Use 'points' instead of 'days' for timeline estimates
+- `adr.md`: Architecture Decision Record
+  - Only created when there are multiple technical approaches to compare with pros/cons analysis
+  - Documents decisions made after struggling with difficult choices between alternatives
 
 **Important**: When `adr.md` exists, the `plan.md` must reflect and be consistent with the decisions made in the ADR. 
 Any technical approaches, implementation methods, or architectural choices documented in the ADR should be accurately represented in the planning document to avoid contradictions.
