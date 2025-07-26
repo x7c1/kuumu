@@ -11,7 +11,7 @@ services:
       - ./claude.local/${ROLE}/.bash_history:/home/developer/.bash_history
       - ~/.claude/CLAUDE.md:/home/developer/.claude/CLAUDE.md
       - ~/.claude/.credentials.json:/home/developer/.claude/.credentials.json
-      - ~/.gitconfig:/home/developer/.gitconfig
+      - ~/.config/git:/home/developer/.config/git
       - ~/.ssh:/home/developer/.ssh:ro
       - ./claude.local/shared/.npm-global:/home/developer/.npm-global
       - ./claude.local/shared/.config/gh:/home/developer/.config/gh

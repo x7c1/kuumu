@@ -11,13 +11,14 @@ Identify the current branch's pull request and update its title and description 
 ## Description
 
 This command will:
-1. Check for staged but uncommitted changes with `git diff --cached`
-2. If staged changes exist, automatically run `/git-commit` to commit them first
-3. Use `./scripts/get-current-branch-pr.sh` to identify the pull request associated with the current branch
-4. Analyze the commit history of the branch to understand the changes
-5. Generate an appropriate title and description based on the commits
-6. Select and apply appropriate labels based on the type and scope of changes
-7. Update the pull request with the generated title, description, and labels
+- Check for staged but uncommitted changes with `git diff --cached`
+- If staged changes exist, automatically run `/git-commit` to commit them first
+- Push the committed changes to the remote repository with `git push`
+- Use `./scripts/get-current-branch-pr.sh` to identify the pull request associated with the current branch
+- Analyze the commit history of the branch to understand the changes
+- Generate an appropriate title and description based on the commits
+- Select and apply appropriate labels based on the type and scope of changes
+- Update the pull request with the generated title, description, and labels
 
 ## Title Generation
 
