@@ -21,17 +21,20 @@
        git_protocol: https
    ```
 
-4. **Restart container**
+4. **Start container with ROLE**
    ```bash
-   make workspace
+   ROLE=developer make workspace
    ```
+   Replace `developer` with your desired role name (e.g., `developer`, `planner`, `tester`).
 
 ## Usage
 
-Once authenticated, simply run:
+Once authenticated, run the following from within the Claude terminal:
 ```bash
-make pr
+!make pr
 ```
+
+Note: The `!` prefix is required to execute shell commands within Claude's interactive terminal.
 
 This will:
 - Push your current branch to remote
