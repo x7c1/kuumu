@@ -42,6 +42,9 @@ RUN chown -R developer:developer /projects
 # Switch to non-root user
 USER developer
 
+# Install Rust components
+RUN rustup component add clippy rustfmt
+
 # Set up npm user-level directory
 RUN mkdir -p /home/developer/.npm-global
 
