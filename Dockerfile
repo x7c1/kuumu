@@ -1,10 +1,4 @@
-FROM rust:slim
-
-# Copy and run common dependency installation script
-COPY scripts/install-ubuntu-deps.sh /tmp/install-ubuntu-deps.sh
-RUN chmod +x /tmp/install-ubuntu-deps.sh && \
-    /tmp/install-ubuntu-deps.sh && \
-    rm /tmp/install-ubuntu-deps.sh
+FROM rust:1.88
 
 # Install additional tools
 RUN apt-get update && apt-get install -y \
@@ -13,6 +7,13 @@ RUN apt-get update && apt-get install -y \
     zsh \
     sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy and run common dependency installation script
+COPY scripts/install-ubuntu-deps.sh /tmp/install-ubuntu-deps.sh
+RUN chmod +x /tmp/install-ubuntu-deps.sh && \
+    /tmp/install-ubuntu-deps.sh && \
+    rm /tmp/install-ubuntu-deps.sh && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
