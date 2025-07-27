@@ -1,4 +1,4 @@
-.PHONY: claude-setup setup-role claude-run workspace pr
+.PHONY: claude-setup setup-role claude-run workspace pr cargo-test cargo-clippy cargo-fmt cargo-fmt-check
 
 claude-setup:
 	./scripts/setup-claude-container.sh
@@ -16,3 +16,16 @@ workspace: claude-run
 
 pr:
 	./scripts/create-pr-auto.sh
+
+# Cargo tasks
+cargo-test:
+	cargo test --workspace
+
+cargo-clippy:
+	cargo clippy --workspace -- -D warnings
+
+cargo-fmt:
+	cargo fmt --all
+
+cargo-fmt-check:
+	cargo fmt --check

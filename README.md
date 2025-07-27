@@ -25,12 +25,12 @@ npm run tauri:desktop -- build
 ### Backend Development
 
 ```bash
-# Build Rust backend
-cargo build
+# Run all tests
+make cargo-test
 
-# Run tests
-cargo test
+# Run clippy linting
+make cargo-clippy
 
-# Check code without building
-cargo check
+# Format code
+make cargo-fmt
 ```

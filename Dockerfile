@@ -1,23 +1,19 @@
-FROM rust:slim
+FROM rust:1.88
 
-# Install essential tools first (including curl)
+# Install additional tools
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
     vim \
     zsh \
     sudo \
-    build-essential \
-    pkg-config \
-    libssl-dev \
-    libgtk-3-dev \
-    libwebkit2gtk-4.1-dev \
-    libappindicator3-dev \
-    librsvg2-dev \
-    patchelf \
-    libsoup-3.0-dev \
-    libjavascriptcoregtk-4.1-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy and run common dependency installation script
+COPY scripts/install-ubuntu-deps.sh /tmp/install-ubuntu-deps.sh
+RUN chmod +x /tmp/install-ubuntu-deps.sh && \
+    /tmp/install-ubuntu-deps.sh && \
+    rm /tmp/install-ubuntu-deps.sh && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
@@ -45,6 +41,9 @@ RUN chown -R developer:developer /projects
 
 # Switch to non-root user
 USER developer
+
+# Install Rust components
+RUN rustup component add clippy rustfmt
 
 # Set up npm user-level directory
 RUN mkdir -p /home/developer/.npm-global
