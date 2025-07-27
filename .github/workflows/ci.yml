@@ -44,18 +44,7 @@ jobs:
       run: npm ci
 
     - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libwebkit2gtk-4.0-dev \
-          build-essential \
-          curl \
-          wget \
-          file \
-          libssl-dev \
-          libgtk-3-dev \
-          libayatana-appindicator3-dev \
-          librsvg2-dev
+      run: ./scripts/install-ubuntu-deps.sh
 
     - name: Run Rust tests
       run: make cargo-test
@@ -91,18 +80,7 @@ jobs:
 
     - name: Install system dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libwebkit2gtk-4.0-dev \
-          build-essential \
-          curl \
-          wget \
-          file \
-          libssl-dev \
-          libgtk-3-dev \
-          libayatana-appindicator3-dev \
-          librsvg2-dev
+      run: ./scripts/install-ubuntu-deps.sh
 
     - name: Install dependencies
       run: npm ci

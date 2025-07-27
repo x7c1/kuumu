@@ -1,22 +1,17 @@
 FROM rust:slim
 
-# Install essential tools first (including curl)
+# Copy and run common dependency installation script
+COPY scripts/install-ubuntu-deps.sh /tmp/install-ubuntu-deps.sh
+RUN chmod +x /tmp/install-ubuntu-deps.sh && \
+    /tmp/install-ubuntu-deps.sh && \
+    rm /tmp/install-ubuntu-deps.sh
+
+# Install additional tools
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
     vim \
     zsh \
     sudo \
-    build-essential \
-    pkg-config \
-    libssl-dev \
-    libgtk-3-dev \
-    libwebkit2gtk-4.1-dev \
-    libappindicator3-dev \
-    librsvg2-dev \
-    patchelf \
-    libsoup-3.0-dev \
-    libjavascriptcoregtk-4.1-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20
