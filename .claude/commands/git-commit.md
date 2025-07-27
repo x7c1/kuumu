@@ -11,11 +11,11 @@ Analyze staged changes and automatically commit with a generated message.
 ## Description
 
 This command will:
-1. Run `./scripts/ensure-newline-staged.sh` to ensure staged files end with newlines
-2. Re-stage any modified files with `git add`
-3. Analyze `git diff --cached` to understand what changes are staged
-4. Generate a Conventional Commits format commit message
-5. Automatically execute the commit
+- Run `./scripts/format-staged-files.sh` to format staged files
+- Re-stage any modified files with `git add`
+- Analyze `git diff --cached` to understand what changes are staged
+- Generate a Conventional Commits format commit message
+- Automatically execute the commit
 
 ## Commit Message Format
 
