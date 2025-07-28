@@ -18,6 +18,12 @@ if [ ${#title} -gt 60 ]; then
     exit 1
 fi
 
+# Check for unnecessary content in description
+if echo "$description" | grep -q "Files Added"; then
+    echo "Error: Description contains unnecessary 'Files Added' section - please remove it"
+    exit 1
+fi
+
 # Update PR
 gh pr edit "$pr_number" --title "$title" --body "$description"
 if [ -n "$labels" ]; then

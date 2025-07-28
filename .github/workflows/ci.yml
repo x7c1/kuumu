@@ -55,8 +55,8 @@ jobs:
     - name: Check Rust formatting
       run: make cargo-fmt-check
 
-    - name: Build desktop app
-      run: npm run build:desktop
+    - name: Build all TypeScript projects
+      run: npm run build --workspaces
 
   build-tauri:
     runs-on: ${{ matrix.os }}

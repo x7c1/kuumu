@@ -6,6 +6,13 @@ A scalable monorepo structure supporting multiple applications and shared librar
 
 ## Development Commands
 
+### Frontend Development
+
+```bash
+# Build all TypeScript projects in the workspace
+npm run build --workspaces
+```
+
 ### Desktop Application
 
 ```bash

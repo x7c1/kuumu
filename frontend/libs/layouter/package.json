@@ -1,0 +1,35 @@
+{
+  "name": "@kuumu/layouter",
+  "version": "1.0.0",
+  "description": "Pure layout structure definitions for describing layouts",
+  "type": "module",
+  "exports": {
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "development": "./src/node/index.ts",
+      "default": "./dist/node/index.js"
+    },
+    "./scaling": {
+      "types": "./dist/scaling/index.d.ts",
+      "development": "./src/scaling/index.ts",
+      "default": "./dist/scaling/index.js"
+    },
+    "./style": {
+      "types": "./dist/style/index.d.ts",
+      "development": "./src/style/index.ts",
+      "default": "./dist/style/index.js"
+    },
+    "./examples": {
+      "types": "./dist/examples/index.d.ts",
+      "development": "./src/examples/index.ts",
+      "default": "./dist/examples/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
