@@ -1,0 +1,23 @@
+{
+  "name": "@kuumu/three-js-layouter-example",
+  "version": "1.0.0",
+  "description": "Three.js examples for layouter package",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@kuumu/dev-logger": "file:../../libs/dev-logger",
+    "@kuumu/layouter": "file:../../libs/layouter",
+    "@kuumu/three-js-layouter": "file:../../libs/three-js-layouter",
+    "three": "^0.179.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.160.0",
+    "typescript": "^5.0.2",
+    "vite": "^5.0.0"
+  }
+}
