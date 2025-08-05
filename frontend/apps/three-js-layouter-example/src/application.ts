@@ -357,11 +357,16 @@ export class Application {
       // Create and dispatch a real wheel event on the canvas element
       const canvas = this.sceneManager.renderer.domElement;
 
+      // Use canvas dimensions and position for precise center coordinates
+      const canvasRect = canvas.getBoundingClientRect();
+      const centerX = canvasRect.left + canvasRect.width / 2;
+      const centerY = canvasRect.top + canvasRect.height / 2;
+
       // Small zoom in only
       const wheelEvent = new WheelEvent('wheel', {
         deltaY: -1, // Zoom in
-        clientX: canvas.width / 2,
-        clientY: canvas.height / 2,
+        clientX: centerX,
+        clientY: centerY,
         bubbles: true,
         cancelable: true,
         view: window,
