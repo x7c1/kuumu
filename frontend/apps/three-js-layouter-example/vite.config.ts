@@ -17,4 +17,18 @@ export default defineConfig({
       resetOnReload: true,
     }),
   ],
+  build: {
+    ...baseConfig.build,
+    // Three.js library is ~508KB after minification, so set warning limit above that
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three/')) {
+            return 'three';
+          }
+        },
+      },
+    },
+  },
 });
