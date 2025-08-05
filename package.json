@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "workspaces": [
-    "frontend/apps/*",
-    "frontend/libs/*"
+    "frontend/libs/*",
+    "frontend/apps/*"
   ],
   "scripts": {
     "dev:desktop": "npm run dev -w kuumu-desktop",
