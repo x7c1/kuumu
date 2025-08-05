@@ -5,7 +5,7 @@ let cachedFont: Font | null = null;
 
 export async function loadFont(): Promise<Font | null> {
   if (!cachedFont) {
-    cachedFont = await loadFontFromFactory();
+    cachedFont = await loadFontFromFactory('./fonts/PlemolJP_Regular.json');
     if (!cachedFont) {
       console.error('Failed to load font');
     }
