@@ -71,21 +71,25 @@ function validateRelativeFontPath(fontPath: string): void {
  */
 function applyMetricsCorrection(font: Font): void {
   // Adjust boundingBox to match JSON font behavior
-  if (font.data && font.data.boundingBox) {
-    const bbox = font.data.boundingBox;
+  if (font.data && typeof font.data === 'object' && 'boundingBox' in font.data) {
+    const fontData = font.data as any;
+    const bbox = fontData.boundingBox;
 
-    // Apply vertical offset correction
-    // This compensates for the difference between JSON and TTF baseline calculations
-    const verticalOffset = bbox.yMax * 0.4; // Adjust this value as needed
+    if (bbox && typeof bbox === 'object' && 'yMax' in bbox && 'yMin' in bbox) {
+      // Apply vertical offset correction
+      // This compensates for the difference between JSON and TTF baseline calculations
+      const verticalOffset = bbox.yMax * 0.4; // Adjust this value as needed
 
-    bbox.yMin += verticalOffset;
-    bbox.yMax += verticalOffset;
+      bbox.yMin += verticalOffset;
+      bbox.yMax += verticalOffset;
+    }
   }
 
   // Log metrics for debugging
+  const fontData = font.data as any;
   console.log('Font metrics after correction:', {
-    boundingBox: font.data?.boundingBox,
-    resolution: font.data?.resolution,
-    underlineThickness: font.data?.underlineThickness
+    boundingBox: typeof fontData === 'object' ? fontData.boundingBox : undefined,
+    resolution: typeof fontData === 'object' ? fontData.resolution : undefined,
+    underlineThickness: typeof fontData === 'object' ? fontData.underlineThickness : undefined
   });
 }
