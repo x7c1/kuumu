@@ -45,11 +45,6 @@ Fonts are configured in `scripts/font-config.json`. To switch fonts:
 2. Update `.envrc` to use new font path
 3. Run font setup to download
 
-**Development Notes**
-- Font files are git-ignored and downloaded automatically
-- CI/CD caches fonts for faster builds
-- Uses Three.js TTFLoader for modern font loading
-
 ### Desktop Application
 
 ```bash
