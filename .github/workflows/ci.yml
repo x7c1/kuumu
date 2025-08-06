@@ -55,10 +55,12 @@ jobs:
           ${{ runner.os }}-fonts-
 
     - name: Setup environment
-      run: cp .envrc.example .envrc && direnv allow
+      run: cp .envrc.example .envrc
 
     - name: Setup fonts
-      run: direnv exec . npm run fonts:setup
+      run: |
+        source .envrc
+        npm run fonts:setup
 
     - name: Run Rust tests
       run: make cargo-test
@@ -110,11 +112,13 @@ jobs:
 
     - name: Setup environment (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: cp .envrc.example .envrc && direnv allow
+      run: cp .envrc.example .envrc
 
     - name: Setup fonts (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
-      run: direnv exec . npm run fonts:setup
+      run: |
+        source .envrc
+        npm run fonts:setup
 
     - name: Build Tauri app
       run: npm run tauri:desktop -- build
