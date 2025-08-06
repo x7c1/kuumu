@@ -19,6 +19,9 @@ export async function loadFont(fontPath: string): Promise<Font | null> {
 
   return new Promise((resolve) => {
     const ttfLoader = new TTFLoader();
+    const startTime = performance.now();
+
+    console.log(`⏳ Loading font: ${fontPath}`);
 
     ttfLoader.load(
       fontPath,
@@ -30,7 +33,8 @@ export async function loadFont(fontPath: string): Promise<Font | null> {
         applyMetricsCorrection(font);
 
         fontCache.set(fontPath, font);
-        console.log(`✓ Font loaded: ${fontPath}`);
+        const loadTime = Math.round(performance.now() - startTime);
+        console.log(`✓ Font loaded: ${fontPath} (${loadTime}ms)`);
         resolve(font);
       },
       undefined,
@@ -72,7 +76,7 @@ function applyMetricsCorrection(font: Font): void {
 
     // Apply vertical offset correction
     // This compensates for the difference between JSON and TTF baseline calculations
-    const verticalOffset = bbox.yMax * 0.37; // Adjust this value as needed
+    const verticalOffset = bbox.yMax * 0.4; // Adjust this value as needed
 
     bbox.yMin += verticalOffset;
     bbox.yMax += verticalOffset;
