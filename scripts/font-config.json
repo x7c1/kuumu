@@ -4,6 +4,11 @@
       "name": "PlemolJP_Regular.ttf",
       "zipUrl": "https://github.com/yuru7/PlemolJP/releases/download/v3.0.0/PlemolJP_v3.0.0.zip",
       "pathInZip": "PlemolJP_v3.0.0/PlemolJP/PlemolJP-Regular.ttf"
+    },
+    {
+      "name": "HackGen-Regular.ttf",
+      "zipUrl": "https://github.com/yuru7/HackGen/releases/download/v2.10.0/HackGen_v2.10.0.zip",
+      "pathInZip": "HackGen_v2.10.0/HackGen-Regular.ttf"
     }
   ]
 }
