@@ -15,7 +15,12 @@
     "dev:layouter-example": "npm run dev -w @kuumu/three-js-layouter-example",
     "build:layouter-example": "npm run build -w @kuumu/three-js-layouter-example",
 
-    "tauri:desktop": "npm run tauri -w kuumu-desktop"
+    "tauri:desktop": "npm run tauri -w kuumu-desktop",
+
+    "fonts:download": "./scripts/download-fonts.sh",
+    "fonts:compress": "gzip -k frontend/apps/three-js-layouter-example/public/fonts/*.ttf",
+    "fonts:setup": "npm run fonts:download && npm run fonts:compress",
+    "prebuild:layouter-example": "npm run fonts:setup"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

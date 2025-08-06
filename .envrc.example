@@ -3,4 +3,4 @@
 
 # Font configuration for three-js-layouter (VITE_ prefix required for browser access)
 # Actual file location: frontend/apps/three-js-layouter-example/public/fonts
-export VITE_KUUMU_FONT_PATH=./fonts/PlemolJP_Regular.json
+export VITE_KUUMU_FONT_PATH=./fonts/PlemolJP_Regular.ttf

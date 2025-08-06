@@ -17,6 +17,7 @@ sudo apt-get install -y \
     librsvg2-dev \
     patchelf \
     libsoup-3.0-dev \
-    libjavascriptcoregtk-4.1-dev
+    libjavascriptcoregtk-4.1-dev \
+    jq
 
 echo "Common Ubuntu dependencies installed successfully!"
