@@ -46,6 +46,20 @@ jobs:
     - name: Install system dependencies
       run: ./scripts/install-ubuntu-deps.sh
 
+    - name: Cache fonts
+      uses: actions/cache@v4
+      with:
+        path: frontend/apps/three-js-layouter-example/public/fonts/
+        key: ${{ runner.os }}-fonts-${{ hashFiles('scripts/font-config.json') }}
+        restore-keys: |
+          ${{ runner.os }}-fonts-
+
+    - name: Setup environment
+      run: cp .envrc.example .envrc && direnv allow
+
+    - name: Setup fonts
+      run: direnv exec . npm run fonts:setup
+
     - name: Run Rust tests
       run: make cargo-test
 
@@ -84,6 +98,23 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Cache fonts (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/cache@v4
+      with:
+        path: frontend/apps/three-js-layouter-example/public/fonts/
+        key: ${{ runner.os }}-fonts-${{ hashFiles('scripts/font-config.json') }}
+        restore-keys: |
+          ${{ runner.os }}-fonts-
+
+    - name: Setup environment (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: cp .envrc.example .envrc && direnv allow
+
+    - name: Setup fonts (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: direnv exec . npm run fonts:setup
 
     - name: Build Tauri app
       run: npm run tauri:desktop -- build

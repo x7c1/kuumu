@@ -18,8 +18,7 @@
     "tauri:desktop": "npm run tauri -w kuumu-desktop",
 
     "fonts:download": "./scripts/download-fonts.sh",
-    "fonts:compress": "gzip -k frontend/apps/three-js-layouter-example/public/fonts/*.ttf",
-    "fonts:setup": "npm run fonts:download && npm run fonts:compress",
+    "fonts:setup": "npm run fonts:download",
     "prebuild:layouter-example": "npm run fonts:setup"
   },
   "devDependencies": {

@@ -31,4 +31,6 @@ export default defineConfig({
       },
     },
   },
+  // Ensure TTF files are treated as assets and copied to output directory
+  assetsInclude: ['**/*.ttf', '**/*.otf', '**/*.woff', '**/*.woff2'],
 });
