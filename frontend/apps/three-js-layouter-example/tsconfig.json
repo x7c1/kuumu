@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.app.json",
+  "include": ["src"],
+  "references": [
+    { "path": "../../libs/layouter" },
+    { "path": "../../libs/three-js-layouter" },
+    { "path": "../../libs/dev-logger" }
+  ]
+}

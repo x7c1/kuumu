@@ -24,6 +24,8 @@ target
 
 # Local files
 *.local
+frontend/**/fonts/*.json
+.envrc
 
 # Editor directories and files
 .vscode/*

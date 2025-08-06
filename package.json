@@ -4,13 +4,17 @@
   "version": "0.1.0",
   "type": "module",
   "workspaces": [
-    "frontend/apps/*",
-    "frontend/libs/*"
+    "frontend/libs/*",
+    "frontend/apps/*"
   ],
   "scripts": {
     "dev:desktop": "npm run dev -w kuumu-desktop",
     "build:desktop": "npm run build -w kuumu-desktop",
     "preview:desktop": "npm run preview -w kuumu-desktop",
+
+    "dev:layouter-example": "npm run dev -w @kuumu/three-js-layouter-example",
+    "build:layouter-example": "npm run build -w @kuumu/three-js-layouter-example",
+
     "tauri:desktop": "npm run tauri -w kuumu-desktop"
   },
   "devDependencies": {

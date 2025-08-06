@@ -13,6 +13,15 @@ A scalable monorepo structure supporting multiple applications and shared librar
 npm run build --workspaces
 ```
 
+#### Layouter Example
+
+```bash
+# Start development server for three-js-layouter-example app
+npm run dev:layouter-example
+```
+
+- During development, logs are also saved to `frontend/apps/three-js-layouter-example/three-js-layouter-example.logs.json`
+
 ### Desktop Application
 
 ```bash
