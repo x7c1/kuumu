@@ -8,7 +8,7 @@ export default defineConfig({
   ...baseConfig,
   plugins: [
     dualLoggerPlugin({
-      include: ['@kuumu'], // Target all @kuumu packages
+      include: ['frontend/libs/', 'frontend/apps/'],
     }),
     devLoggerPlugin({
       logFile: 'three-js-layouter-example.logs.json',
