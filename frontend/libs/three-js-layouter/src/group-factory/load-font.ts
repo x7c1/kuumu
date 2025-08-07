@@ -2,8 +2,34 @@ import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TTFLoader } from 'three/examples/jsm/loaders/TTFLoader.js';
 
+interface TTFLoaderResult {
+  glyphs: Record<string, {
+    ha: number;        // horizontal advance width
+    x_min: number;     // minimum x coordinate
+    x_max: number;     // maximum x coordinate
+    o: string;         // outline commands as string
+  }>;
+  familyName: string;
+  ascender: number;
+  descender: number;
+  underlinePosition: number;
+  underlineThickness: number;
+  boundingBox: {
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+  };
+  resolution: number;
+  original_font_information: unknown;
+}
+
 // WebGL-based text rendering
 const fontCache = new Map<string, Font>();
+
+const DB_NAME = 'FontCache';
+const DB_VERSION = 1;
+const STORE_NAME = 'fonts';
 
 /**
  * Loads a font from the specified relative path
@@ -17,32 +43,102 @@ export async function loadFont(fontPath: string): Promise<Font | null> {
   const cachedFont = fontCache.get(fontPath);
   if (cachedFont) return cachedFont;
 
-  return new Promise((resolve) => {
-    const ttfLoader = new TTFLoader();
-    const startTime = performance.now();
+  const startTime = performance.now();
+  console.log(`⏳ Loading font: ${fontPath}`);
 
-    console.log(`⏳ Loading font: ${fontPath}`);
+  let fontData = await loadCachedTTF(fontPath);
+  if (!fontData) {
+    fontData = await loadTTF(fontPath);
+    cacheTTF(fontPath, fontData);
+  }
 
-    ttfLoader.load(
-      fontPath,
-      (fontData) => {
-        const fontLoader = new FontLoader();
-        const font = fontLoader.parse(fontData);
+  const fontLoader = new FontLoader();
+  // Clone fontData to prevent mutation of cached data
+  const clonedFontData = JSON.parse(JSON.stringify(fontData));
+  const font = fontLoader.parse(clonedFontData);
 
-        // Apply metrics correction to fix vertical positioning
-        applyMetricsCorrection(font);
+  // Apply metrics correction to fix vertical positioning
+  applyMetricsCorrection(font);
 
-        fontCache.set(fontPath, font);
-        const loadTime = Math.round(performance.now() - startTime);
-        console.log(`✓ Font loaded: ${fontPath} (${loadTime}ms)`);
-        resolve(font);
-      },
-      undefined,
-      (error) => {
-        console.warn(`⚠️ Font loading failed: ${fontPath}`, error);
-        resolve(null);
+  const loadTime = Math.round(performance.now() - startTime);
+  console.log(`✓ Font loaded: ${fontPath} (${loadTime}ms)`);
+
+  fontCache.set(fontPath, font);
+  return font;
+}
+
+/**
+ * Loads cached TTF font data from IndexedDB
+ * @param fontPath - Relative path to the font file
+ * @returns Promise that resolves to font data or null if not cached
+ */
+async function loadCachedTTF(fontPath: string): Promise<TTFLoaderResult | null> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onerror = () => resolve(null);
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
       }
-    );
+    };
+
+    request.onsuccess = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const getRequest = store.get(fontPath);
+
+      getRequest.onsuccess = () => {
+        resolve(getRequest.result || null);
+      };
+
+      getRequest.onerror = () => resolve(null);
+    };
+  });
+}
+
+/**
+ * Caches TTF font data to IndexedDB
+ * @param fontPath - Relative path to the font file
+ * @param fontData - Font data to cache
+ */
+async function cacheTTF(fontPath: string, fontData: TTFLoaderResult): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onerror = () => resolve();
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+
+    request.onsuccess = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      const transaction = db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const putRequest = store.put(fontData, fontPath);
+
+      putRequest.onsuccess = () => resolve();
+      putRequest.onerror = () => resolve();
+    };
+  });
+}
+
+/**
+ * Loads TTF font data from file path
+ * @param fontPath - Relative path to the TTF font file
+ * @returns Promise that resolves to font data
+ */
+async function loadTTF(fontPath: string): Promise<TTFLoaderResult> {
+  return new Promise((resolve, reject) => {
+    const ttfLoader = new TTFLoader();
+    ttfLoader.load(fontPath, resolve, undefined, reject);
   });
 }
 
@@ -78,18 +174,10 @@ function applyMetricsCorrection(font: Font): void {
     if (bbox && typeof bbox === 'object' && 'yMax' in bbox && 'yMin' in bbox) {
       // Apply vertical offset correction
       // This compensates for the difference between JSON and TTF baseline calculations
-      const verticalOffset = bbox.yMax * 0.4; // Adjust this value as needed
+      const verticalOffset = bbox.yMax * 0.5; // Adjust this value as needed
 
       bbox.yMin += verticalOffset;
       bbox.yMax += verticalOffset;
     }
   }
-
-  // Log metrics for debugging
-  const fontData = font.data as any;
-  console.log('Font metrics after correction:', {
-    boundingBox: typeof fontData === 'object' ? fontData.boundingBox : undefined,
-    resolution: typeof fontData === 'object' ? fontData.resolution : undefined,
-    underlineThickness: typeof fontData === 'object' ? fontData.underlineThickness : undefined
-  });
 }
