@@ -49,16 +49,13 @@ export async function loadFont(fontPath: string): Promise<Font | null> {
   let fontData = await loadCachedTTF(fontPath);
   if (!fontData) {
     fontData = await loadTTF(fontPath);
-    cacheTTF(fontPath, fontData);
+    // Apply metrics correction to the raw font data before caching
+    applyMetricsCorrection(fontData);
+    await cacheTTF(fontPath, fontData);
   }
 
   const fontLoader = new FontLoader();
-  // Clone fontData to prevent mutation of cached data
-  const clonedFontData = JSON.parse(JSON.stringify(fontData));
-  const font = fontLoader.parse(clonedFontData);
-
-  // Apply metrics correction to fix vertical positioning
-  applyMetricsCorrection(font);
+  const font = fontLoader.parse(fontData);
 
   const loadTime = Math.round(performance.now() - startTime);
   console.log(`✓ Font loaded: ${fontPath} (${loadTime}ms)`);
@@ -165,19 +162,15 @@ function validateRelativeFontPath(fontPath: string): void {
  * Apply metrics correction to fix vertical positioning issues
  * when converting from JSON to TTF font loading
  */
-function applyMetricsCorrection(font: Font): void {
-  // Adjust boundingBox to match JSON font behavior
-  if (font.data && typeof font.data === 'object' && 'boundingBox' in font.data) {
-    const fontData = font.data as any;
-    const bbox = fontData.boundingBox;
+function applyMetricsCorrection(fontData: TTFLoaderResult): void {
+  const bbox = fontData.boundingBox;
 
-    if (bbox && typeof bbox === 'object' && 'yMax' in bbox && 'yMin' in bbox) {
-      // Apply vertical offset correction
-      // This compensates for the difference between JSON and TTF baseline calculations
-      const verticalOffset = bbox.yMax * 0.5; // Adjust this value as needed
+  if (bbox && typeof bbox === 'object' && 'yMax' in bbox && 'yMin' in bbox) {
+    // Apply vertical offset correction
+    // This compensates for the difference between JSON and TTF baseline calculations
+    const verticalOffset = bbox.yMax * 0.5; // Adjust this value as needed
 
-      bbox.yMin += verticalOffset;
-      bbox.yMax += verticalOffset;
-    }
+    bbox.yMin += verticalOffset;
+    bbox.yMax += verticalOffset;
   }
 }
