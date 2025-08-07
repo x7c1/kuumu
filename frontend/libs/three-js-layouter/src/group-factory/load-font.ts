@@ -70,7 +70,7 @@ export async function loadFont(fontPath: string): Promise<Font | null> {
  * @returns Promise that resolves to font data or null if not cached
  */
 async function loadCachedTTF(fontPath: string): Promise<TTFLoaderResult | null> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => resolve(null);
@@ -103,7 +103,7 @@ async function loadCachedTTF(fontPath: string): Promise<TTFLoaderResult | null> 
  * @param fontData - Font data to cache
  */
 async function cacheTTF(fontPath: string, fontData: TTFLoaderResult): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => resolve();
@@ -135,7 +135,7 @@ async function cacheTTF(fontPath: string, fontData: TTFLoaderResult): Promise<vo
 async function loadTTF(fontPath: string): Promise<TTFLoaderResult> {
   return new Promise((resolve, reject) => {
     const ttfLoader = new TTFLoader();
-    ttfLoader.load(fontPath, resolve, undefined, reject);
+    ttfLoader.load(fontPath, (data: object) => resolve(data as TTFLoaderResult), undefined, reject);
   });
 }
 
