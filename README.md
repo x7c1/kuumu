@@ -22,6 +22,29 @@ npm run dev:layouter-example
 
 - During development, logs are also saved to `frontend/apps/three-js-layouter-example/three-js-layouter-example.logs.json`
 
+#### Font Management
+
+After cloning the repository, set up fonts for the layouter example:
+
+```bash
+npm run fonts:setup
+```
+
+**Font Configuration**
+
+Fonts are configured in `scripts/font-config.json`. To switch fonts:
+1. Update `VITE_KUUMU_FONT_PATH` in `.envrc`
+2. Run `direnv allow` to reload environment  
+3. Run `npm run fonts:setup` to download new font
+
+**Available Fonts**
+- See `scripts/font-config.json` for configured fonts
+
+**Adding New Fonts**
+1. Add font entry to `scripts/font-config.json`
+2. Update `.envrc` to use new font path
+3. Run font setup to download
+
 ### Desktop Application
 
 ```bash

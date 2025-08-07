@@ -8,7 +8,7 @@ export default defineConfig({
   ...baseConfig,
   plugins: [
     dualLoggerPlugin({
-      include: ['three-js-layouter-example'],
+      include: ['frontend/libs/', 'frontend/apps/'],
     }),
     devLoggerPlugin({
       logFile: 'three-js-layouter-example.logs.json',
@@ -31,4 +31,6 @@ export default defineConfig({
       },
     },
   },
+  // Ensure TTF files are treated as assets and copied to output directory
+  assetsInclude: ['**/*.ttf', '**/*.otf', '**/*.woff', '**/*.woff2'],
 });

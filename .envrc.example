@@ -2,4 +2,5 @@
 # Copy this file to .envrc and customize as needed: cp .envrc.example .envrc && direnv allow
 
 # Font configuration for three-js-layouter (VITE_ prefix required for browser access)
-export VITE_KUUMU_FONT_PATH=./fonts/PlemolJP_Regular.json
+# Actual file location: frontend/apps/three-js-layouter-example/public/fonts
+export VITE_KUUMU_FONT_PATH=./fonts/PlemolJP_Regular.ttf

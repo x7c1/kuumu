@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "com.example.kuumu",
   "build": {
-    "beforeDevCommand": "npm run dev -w kuumu-desktop",
-    "devUrl": "http://localhost:1420", 
-    "beforeBuildCommand": "npm run build -w kuumu-desktop",
+    "beforeDevCommand": "npm run dev -w @kuumu/kuumu-desktop",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build -w @kuumu/kuumu-desktop",
     "frontendDist": "../../../frontend/apps/kuumu-desktop/dist"
   },
   "app": {
