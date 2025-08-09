@@ -103,6 +103,13 @@ export class DebugPanel {
     const savedExample = this.getSavedExample();
     if (savedExample) {
       this.setCurrentExample(savedExample);
+      this.updateChildOptionsVisibility(savedExample);
+    } else {
+      // Default case - check which example is currently selected
+      const checkedExample = document.querySelector('input[name="example"]:checked') as HTMLInputElement;
+      if (checkedExample) {
+        this.updateChildOptionsVisibility(checkedExample.value);
+      }
     }
 
     const savedAlignment = this.getSavedAlignment();
@@ -172,6 +179,7 @@ export class DebugPanel {
         const target = event.target as HTMLInputElement;
         if (target.checked && isValidExampleType(target.value)) {
           this.saveCurrentState(target.value);
+          this.updateChildOptionsVisibility(target.value);
           this.config.onExampleChange(target.value);
         }
       });
@@ -283,6 +291,21 @@ export class DebugPanel {
   setCurrentAxisHelper(show: boolean): void {
     console.log('[DEBUG] setCurrentAxisHelper called with:', show);
     this.axisHelperCheckbox.checked = show;
+  }
+
+  private updateChildOptionsVisibility(exampleType: string): void {
+    const horizontalAlignmentOptions = document.getElementById('horizontal-alignment-options');
+    const verticalAlignmentOptions = document.getElementById('vertical-alignment-options');
+
+    if (horizontalAlignmentOptions) {
+      horizontalAlignmentOptions.style.display =
+        exampleType === 'simple-horizontal' ? 'block' : 'none';
+    }
+
+    if (verticalAlignmentOptions) {
+      verticalAlignmentOptions.style.display =
+        exampleType === 'simple-vertical' ? 'block' : 'none';
+    }
   }
 
   dispose(): void {
