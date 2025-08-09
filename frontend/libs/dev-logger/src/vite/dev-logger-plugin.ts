@@ -45,7 +45,7 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
   // Append a single log entry to file (NDJSON format)
   const appendLog = (logEntry: LogEntry) => {
     try {
-      const logLine = JSON.stringify(logEntry) + '\n';
+      const logLine = `${JSON.stringify(logEntry)}\n`;
       fs.appendFileSync(logFilePath, logLine);
     } catch (err) {
       console.warn('Failed to append log:', err);
