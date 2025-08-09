@@ -27,6 +27,7 @@ export class Application {
   private config: ApplicationConfig;
   private currentExampleType: ExampleType = 'simple-container';
   private currentAlignment: 'center' | 'top' = 'center';
+  private currentVerticalAlignment: 'center' | 'left' = 'left';
   private wireframeEnabled: boolean = false;
   private currentHeightMode: 'fixed' | 'dynamic' = 'dynamic';
 
@@ -57,6 +58,7 @@ export class Application {
   async initialize(options?: {
     example?: ExampleType;
     alignment?: 'center' | 'top';
+    verticalAlignment?: 'center' | 'left';
     projection?: string;
     wireframe?: boolean;
     heightMode?: 'fixed' | 'dynamic';
@@ -72,6 +74,9 @@ export class Application {
     }
     if (options?.alignment) {
       this.currentAlignment = options.alignment;
+    }
+    if (options?.verticalAlignment) {
+      this.currentVerticalAlignment = options.verticalAlignment;
     }
     if (options?.projection) {
       this.switchProjection(options.projection);
@@ -103,6 +108,12 @@ export class Application {
 
   async switchAlignment(alignment: 'center' | 'top'): Promise<void> {
     this.currentAlignment = alignment;
+    await this.loadCurrentExample();
+    this.logDebugInfo();
+  }
+
+  async switchVerticalAlignment(verticalAlignment: 'center' | 'left'): Promise<void> {
+    this.currentVerticalAlignment = verticalAlignment;
     await this.loadCurrentExample();
     this.logDebugInfo();
   }
@@ -265,7 +276,7 @@ export class Application {
       case 'simple-horizontal':
         return { type: 'simple-horizontal', ...baseParams, alignment: this.currentAlignment };
       case 'simple-vertical':
-        return { type: 'simple-vertical', ...baseParams };
+        return { type: 'simple-vertical', ...baseParams, verticalAlignment: this.currentVerticalAlignment };
     }
   }
 

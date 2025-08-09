@@ -46,6 +46,7 @@ type SimpleHorizontalParams = {
 type SimpleVerticalParams = {
   type: 'simple-vertical';
   font: Font;
+  verticalAlignment: 'center' | 'left';
   wireframe?: boolean;
   heightMode?: 'fixed' | 'dynamic';
 };
@@ -78,6 +79,7 @@ function createNode(params: ExampleParams): Node {
     case 'simple-vertical':
       node = simpleVerticalLayoutNode();
       updateVerticalLayoutNodeStyle(node, {
+        alignment: params.verticalAlignment,
         wireframe: params.wireframe,
       });
       break;
