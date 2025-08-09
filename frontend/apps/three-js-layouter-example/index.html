@@ -100,6 +100,27 @@
         html.theme-light #debug-panel label {
             color: white;
         }
+        #debug-panel .child-options {
+            margin-left: 20px;
+            margin-top: 8px;
+            padding-left: 12px;
+            border-left: 2px solid rgba(0, 150, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        html.theme-light #debug-panel .child-options {
+            border-left: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        #debug-panel .child-options h4 {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        html.theme-light #debug-panel .child-options h4 {
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -121,22 +142,36 @@
             <div class="radio-option">
                 <input type="radio" id="simple-horizontal" name="example" value="simple-horizontal">
                 <label for="simple-horizontal">Simple Horizontal</label>
+                <div class="child-options" id="horizontal-alignment-options" style="display: none;">
+                    <h4 style="margin-top: 10px;">Horizontal Alignment</h4>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="align-center" name="alignment" value="center" checked>
+                            <label for="align-center">Center</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="align-top" name="alignment" value="top">
+                            <label for="align-top">Top</label>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="radio-option">
                 <input type="radio" id="simple-vertical" name="example" value="simple-vertical">
                 <label for="simple-vertical">Simple Vertical</label>
-            </div>
-        </div>
-
-        <h4 style="margin-top: 20px;">Horizontal Alignment</h4>
-        <div class="radio-group">
-            <div class="radio-option">
-                <input type="radio" id="align-center" name="alignment" value="center" checked>
-                <label for="align-center">Center</label>
-            </div>
-            <div class="radio-option">
-                <input type="radio" id="align-top" name="alignment" value="top">
-                <label for="align-top">Top</label>
+                <div class="child-options" id="vertical-alignment-options" style="display: none;">
+                    <h4 style="margin-top: 10px;">Vertical Alignment</h4>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="valign-left" name="verticalAlignment" value="left" checked>
+                            <label for="valign-left">Left</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="valign-center" name="verticalAlignment" value="center">
+                            <label for="valign-center">Center</label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

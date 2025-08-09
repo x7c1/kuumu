@@ -94,7 +94,10 @@ const debugPanel = new DebugPanel({
     await app.switchExample(exampleType);
   },
   onAlignmentChange: async (alignment: string) => {
-    await app.switchAlignment(alignment as 'center' | 'top');
+    await app.switchHorizontalAlignment(alignment as 'center' | 'top');
+  },
+  onVerticalAlignmentChange: async (verticalAlignment: string) => {
+    await app.switchVerticalAlignment(verticalAlignment as 'center' | 'left');
   },
   onProjectionChange: (projection: string) => {
     app.switchProjection(projection);
@@ -117,6 +120,7 @@ debugPanel.initialize();
 // Initialize application with all saved settings
 const savedExample = debugPanel.getSavedExample();
 const savedAlignment = debugPanel.getSavedAlignment();
+const savedVerticalAlignment = debugPanel.getSavedVerticalAlignment();
 const savedProjection = debugPanel.getSavedProjection();
 const savedWireframe = debugPanel.getSavedWireframe();
 const savedHeightMode = debugPanel.getSavedHeightMode();
@@ -127,7 +131,8 @@ const savedAxisHelper = debugPanel.getSavedAxisHelper();
 try {
   await app.initialize({
     example: isValidExampleType(savedExample) ? savedExample : undefined,
-    alignment: savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
+    horizontalAlignment: savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
+    verticalAlignment: savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left' ? savedVerticalAlignment : undefined,
     projection: savedProjection || undefined,
     wireframe: savedWireframe,
     heightMode: savedHeightMode,

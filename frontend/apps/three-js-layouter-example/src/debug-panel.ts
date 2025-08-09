@@ -3,6 +3,7 @@ import { type ExampleType, isValidExampleType } from './build-example';
 export interface DebugPanelConfig {
   onExampleChange: (exampleType: ExampleType) => void;
   onAlignmentChange?: (alignment: string) => void;
+  onVerticalAlignmentChange?: (verticalAlignment: string) => void;
   onProjectionChange?: (projection: string) => void;
   onWireframeChange?: (wireframe: boolean) => void;
   onHeightModeChange?: (heightMode: 'fixed' | 'dynamic') => void;
@@ -13,6 +14,7 @@ export interface DebugPanelConfig {
 export class DebugPanel {
   private static readonly STORAGE_KEY = 'three-js-layouter-example-selected';
   private static readonly ALIGNMENT_STORAGE_KEY = 'three-js-layouter-alignment-selected';
+  private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY = 'three-js-layouter-vertical-alignment-selected';
   private static readonly PROJECTION_STORAGE_KEY = 'three-js-layouter-projection-selected';
   private static readonly WIREFRAME_STORAGE_KEY = 'three-js-layouter-wireframe-enabled';
   private static readonly HEIGHT_MODE_STORAGE_KEY = 'three-js-layouter-height-mode-selected';
@@ -21,6 +23,7 @@ export class DebugPanel {
   private config: DebugPanelConfig;
   private radioButtons: NodeListOf<HTMLInputElement>;
   private alignmentButtons: NodeListOf<HTMLInputElement>;
+  private verticalAlignmentButtons: NodeListOf<HTMLInputElement>;
   private projectionButtons: NodeListOf<HTMLInputElement>;
   private wireframeCheckbox: HTMLInputElement;
   private heightModeButtons: NodeListOf<HTMLInputElement>;
@@ -34,6 +37,9 @@ export class DebugPanel {
     ) as NodeListOf<HTMLInputElement>;
     this.alignmentButtons = document.querySelectorAll(
       'input[name="alignment"]'
+    ) as NodeListOf<HTMLInputElement>;
+    this.verticalAlignmentButtons = document.querySelectorAll(
+      'input[name="verticalAlignment"]'
     ) as NodeListOf<HTMLInputElement>;
     this.projectionButtons = document.querySelectorAll(
       'input[name="projection"]'
@@ -61,6 +67,10 @@ export class DebugPanel {
 
   getSavedAlignment(): string | null {
     return localStorage.getItem(DebugPanel.ALIGNMENT_STORAGE_KEY);
+  }
+
+  getSavedVerticalAlignment(): string | null {
+    return localStorage.getItem(DebugPanel.VERTICAL_ALIGNMENT_STORAGE_KEY);
   }
 
   getSavedProjection(): string | null {
@@ -93,11 +103,23 @@ export class DebugPanel {
     const savedExample = this.getSavedExample();
     if (savedExample) {
       this.setCurrentExample(savedExample);
+      this.updateChildOptionsVisibility(savedExample);
+    } else {
+      // Default case - check which example is currently selected
+      const checkedExample = document.querySelector('input[name="example"]:checked') as HTMLInputElement;
+      if (checkedExample) {
+        this.updateChildOptionsVisibility(checkedExample.value);
+      }
     }
 
     const savedAlignment = this.getSavedAlignment();
     if (savedAlignment) {
       this.setCurrentAlignment(savedAlignment);
+    }
+
+    const savedVerticalAlignment = this.getSavedVerticalAlignment();
+    if (savedVerticalAlignment) {
+      this.setCurrentVerticalAlignment(savedVerticalAlignment);
     }
 
     const savedProjection = this.getSavedProjection();
@@ -127,6 +149,10 @@ export class DebugPanel {
     localStorage.setItem(DebugPanel.ALIGNMENT_STORAGE_KEY, alignment);
   }
 
+  private saveCurrentVerticalAlignment(verticalAlignment: string): void {
+    localStorage.setItem(DebugPanel.VERTICAL_ALIGNMENT_STORAGE_KEY, verticalAlignment);
+  }
+
   private saveCurrentProjection(projection: string): void {
     localStorage.setItem(DebugPanel.PROJECTION_STORAGE_KEY, projection);
   }
@@ -153,6 +179,7 @@ export class DebugPanel {
         const target = event.target as HTMLInputElement;
         if (target.checked && isValidExampleType(target.value)) {
           this.saveCurrentState(target.value);
+          this.updateChildOptionsVisibility(target.value);
           this.config.onExampleChange(target.value);
         }
       });
@@ -164,6 +191,16 @@ export class DebugPanel {
         if (target.checked) {
           this.saveCurrentAlignment(target.value);
           this.config.onAlignmentChange?.(target.value);
+        }
+      });
+    });
+
+    this.verticalAlignmentButtons.forEach((radio) => {
+      radio.addEventListener('change', (event) => {
+        const target = event.target as HTMLInputElement;
+        if (target.checked) {
+          this.saveCurrentVerticalAlignment(target.value);
+          this.config.onVerticalAlignmentChange?.(target.value);
         }
       });
     });
@@ -223,6 +260,12 @@ export class DebugPanel {
     });
   }
 
+  setCurrentVerticalAlignment(verticalAlignment: string): void {
+    this.verticalAlignmentButtons.forEach((radio) => {
+      radio.checked = radio.value === verticalAlignment;
+    });
+  }
+
   setCurrentProjection(projection: string): void {
     this.projectionButtons.forEach((radio) => {
       radio.checked = radio.value === projection;
@@ -248,6 +291,21 @@ export class DebugPanel {
   setCurrentAxisHelper(show: boolean): void {
     console.log('[DEBUG] setCurrentAxisHelper called with:', show);
     this.axisHelperCheckbox.checked = show;
+  }
+
+  private updateChildOptionsVisibility(exampleType: string): void {
+    const horizontalAlignmentOptions = document.getElementById('horizontal-alignment-options');
+    const verticalAlignmentOptions = document.getElementById('vertical-alignment-options');
+
+    if (horizontalAlignmentOptions) {
+      horizontalAlignmentOptions.style.display =
+        exampleType === 'simple-horizontal' ? 'block' : 'none';
+    }
+
+    if (verticalAlignmentOptions) {
+      verticalAlignmentOptions.style.display =
+        exampleType === 'simple-vertical' ? 'block' : 'none';
+    }
   }
 
   dispose(): void {

@@ -12,7 +12,7 @@ export interface DevLoggerPluginOptions {
 
 export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
   const {
-    logFile = 'dev-logs.json',
+    logFile = 'dev-console.log',
     endpoint = '/dev-logger/logs',
     maxLogEntries = 1000,
     resetOnReload = true,
@@ -26,8 +26,13 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
   const loadLogs = () => {
     try {
       if (!resetOnReload && fs.existsSync(logFilePath)) {
-        const content = fs.readFileSync(logFilePath, 'utf-8');
-        logs = JSON.parse(content);
+        const content = fs.readFileSync(logFilePath, 'utf-8').trim();
+        if (content) {
+          // Parse NDJSON format (each line is a separate JSON object)
+          logs = content.split('\n').map(line => JSON.parse(line));
+        } else {
+          logs = [];
+        }
       } else {
         logs = [];
       }
@@ -37,17 +42,29 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
     }
   };
 
-  // Save logs to file
-  const saveLogs = () => {
+  // Append a single log entry to file (NDJSON format)
+  const appendLog = (logEntry: LogEntry) => {
+    try {
+      const logLine = JSON.stringify(logEntry) + '\n';
+      fs.appendFileSync(logFilePath, logLine);
+    } catch (err) {
+      console.warn('Failed to append log:', err);
+    }
+  };
+
+  // Rewrite entire log file (used for session resets or cleanup)
+  const rewriteLogs = () => {
     try {
       // Keep only the most recent entries
       if (logs.length > maxLogEntries) {
         logs = logs.slice(-maxLogEntries);
       }
 
-      fs.writeFileSync(logFilePath, JSON.stringify(logs, null, 2));
+      // Write each log entry as a separate JSON line (NDJSON format)
+      const ndjsonContent = logs.map(log => JSON.stringify(log)).join('\n');
+      fs.writeFileSync(logFilePath, ndjsonContent + (logs.length > 0 ? '\n' : ''));
     } catch (err) {
-      console.warn('Failed to save logs:', err);
+      console.warn('Failed to rewrite logs:', err);
     }
   };
 
@@ -72,13 +89,21 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
               if (resetOnReload && data.sessionId && data.sessionId !== currentSessionId) {
                 logs = [];
                 currentSessionId = data.sessionId;
-                saveLogs();
+                // Clear the file for new session
+                fs.writeFileSync(logFilePath, '');
               }
 
               // Add log entry
               if (data.logEntry) {
                 logs.push(data.logEntry);
-                saveLogs();
+                // Append only the new log entry
+                appendLog(data.logEntry);
+
+                // Periodically clean up if we exceed max entries
+                if (logs.length > maxLogEntries) {
+                  logs = logs.slice(-maxLogEntries);
+                  rewriteLogs();
+                }
               }
 
               res.writeHead(200, { 'Content-Type': 'application/json' });

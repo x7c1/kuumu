@@ -24,6 +24,11 @@ if echo "$description" | grep -q "Files Added"; then
     exit 1
 fi
 
+if echo "$description" | grep -q "Files Modified"; then
+    echo "Error: Description contains unnecessary 'Files Modified' section - please remove it"
+    exit 1
+fi
+
 # Update PR
 gh pr edit "$pr_number" --title "$title" --body "$description"
 if [ -n "$labels" ]; then

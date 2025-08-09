@@ -31,7 +31,11 @@ function getItems(node: VerticalLayoutNode): Node[] {
 // Position children for vertical layout node
 function positionChildren(children: THREE.Group[], node: VerticalLayoutNode): void {
   const spacing = node.style?.spacing ?? DEFAULT_VERTICAL_LAYOUT_NODE_STYLE.spacing; // Space between items
+  const alignment = node.style?.alignment || 'left';
+
+
   positionItemsVertically(children, spacing);
+  applyHorizontalAlignment(children, alignment);
 }
 
 // Create geometry for vertical layout node
@@ -53,5 +57,55 @@ function positionItemsVertically(itemGroups: THREE.Group[], spacing: number): vo
 
     // Update offset for next item (move down)
     yOffset -= size.y + spacing;
+  }
+}
+
+// Apply center alignment to items
+function applyCenterAlignment(itemGroups: THREE.Group[]): void {
+  // Calculate the leftmost left position among all items
+  let leftmostLeft = Infinity;
+  let rightmostRight = -Infinity;
+  for (const itemGroup of itemGroups) {
+    const box = new THREE.Box3().setFromObject(itemGroup);
+    leftmostLeft = Math.min(leftmostLeft, box.min.x);
+    rightmostRight = Math.max(rightmostRight, box.max.x);
+  }
+
+  // Calculate center offset
+  const totalWidth = rightmostRight - leftmostLeft;
+  const centerOffset = -totalWidth / 2 - leftmostLeft;
+
+
+  // Align all items to center
+  for (const itemGroup of itemGroups) {
+    itemGroup.position.x = centerOffset;
+  }
+}
+
+// Apply left alignment to items
+function applyLeftAlignment(itemGroups: THREE.Group[]): void {
+  // Calculate the leftmost position among all items
+  let leftmostLeft = Infinity;
+  for (const itemGroup of itemGroups) {
+    const box = new THREE.Box3().setFromObject(itemGroup);
+    leftmostLeft = Math.min(leftmostLeft, box.min.x);
+  }
+
+
+  // Move all items so their left edges align to x=0
+  for (const itemGroup of itemGroups) {
+    const box = new THREE.Box3().setFromObject(itemGroup);
+    const leftOffset = -box.min.x;
+    itemGroup.position.x = leftOffset;
+  }
+}
+
+// Apply horizontal alignment to items
+function applyHorizontalAlignment(itemGroups: THREE.Group[], alignment: string): void {
+
+  if (alignment === 'center') {
+    applyCenterAlignment(itemGroups);
+  } else {
+    applyLeftAlignment(itemGroups);
   }
 }
