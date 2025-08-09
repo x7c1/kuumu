@@ -33,7 +33,6 @@ function positionChildren(children: THREE.Group[], node: VerticalLayoutNode): vo
   const spacing = node.style?.spacing ?? DEFAULT_VERTICAL_LAYOUT_NODE_STYLE.spacing; // Space between items
   const alignment = node.style?.alignment || 'left';
 
-
   positionItemsVertically(children, spacing);
   applyHorizontalAlignment(children, alignment);
 }
@@ -75,7 +74,6 @@ function applyCenterAlignment(itemGroups: THREE.Group[]): void {
   const totalWidth = rightmostRight - leftmostLeft;
   const centerOffset = -totalWidth / 2 - leftmostLeft;
 
-
   // Align all items to center
   for (const itemGroup of itemGroups) {
     itemGroup.position.x = centerOffset;
@@ -91,7 +89,6 @@ function applyLeftAlignment(itemGroups: THREE.Group[]): void {
     leftmostLeft = Math.min(leftmostLeft, box.min.x);
   }
 
-
   // Move all items so their left edges align to x=0
   for (const itemGroup of itemGroups) {
     const box = new THREE.Box3().setFromObject(itemGroup);
@@ -102,7 +99,6 @@ function applyLeftAlignment(itemGroups: THREE.Group[]): void {
 
 // Apply horizontal alignment to items
 function applyHorizontalAlignment(itemGroups: THREE.Group[], alignment: string): void {
-
   if (alignment === 'center') {
     applyCenterAlignment(itemGroups);
   } else {

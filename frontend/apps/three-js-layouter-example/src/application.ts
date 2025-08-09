@@ -274,9 +274,17 @@ export class Application {
       case 'simple-container':
         return { type: 'simple-container', ...baseParams };
       case 'simple-horizontal':
-        return { type: 'simple-horizontal', ...baseParams, alignment: this.currentHorizontalAlignment };
+        return {
+          type: 'simple-horizontal',
+          ...baseParams,
+          alignment: this.currentHorizontalAlignment,
+        };
       case 'simple-vertical':
-        return { type: 'simple-vertical', ...baseParams, verticalAlignment: this.currentVerticalAlignment };
+        return {
+          type: 'simple-vertical',
+          ...baseParams,
+          verticalAlignment: this.currentVerticalAlignment,
+        };
     }
   }
 

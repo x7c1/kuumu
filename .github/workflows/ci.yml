@@ -79,6 +79,9 @@ jobs:
     - name: Check Rust formatting
       run: make cargo-fmt-check
 
+    - name: Run Biome check
+      run: npm run biome:check
+
     - name: Build all TypeScript projects
       run: npm run build --workspaces
 

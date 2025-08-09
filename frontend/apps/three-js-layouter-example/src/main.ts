@@ -131,8 +131,12 @@ const savedAxisHelper = debugPanel.getSavedAxisHelper();
 try {
   await app.initialize({
     example: isValidExampleType(savedExample) ? savedExample : undefined,
-    horizontalAlignment: savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
-    verticalAlignment: savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left' ? savedVerticalAlignment : undefined,
+    horizontalAlignment:
+      savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
+    verticalAlignment:
+      savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left'
+        ? savedVerticalAlignment
+        : undefined,
     projection: savedProjection || undefined,
     wireframe: savedWireframe,
     heightMode: savedHeightMode,

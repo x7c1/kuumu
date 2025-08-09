@@ -7,7 +7,9 @@ export async function loadFont(): Promise<Font | null> {
   if (!cachedFont) {
     const fontPath = import.meta.env.VITE_KUUMU_FONT_PATH;
     if (!fontPath) {
-      throw new Error('VITE_KUUMU_FONT_PATH was not set during build time. Please set it in your .envrc file and rebuild the application.');
+      throw new Error(
+        'VITE_KUUMU_FONT_PATH was not set during build time. Please set it in your .envrc file and rebuild the application.'
+      );
     }
 
     cachedFont = await loadFontFromFactory(fontPath);
