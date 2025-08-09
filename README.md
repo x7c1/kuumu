@@ -20,7 +20,7 @@ npm run build --workspaces
 npm run dev:layouter-example
 ```
 
-- During development, logs are also saved to `frontend/apps/three-js-layouter-example/three-js-layouter-example.logs.json`
+- During development, logs are also saved to `frontend/apps/three-js-layouter-example/three-js-layouter-example.log`
 
 #### Font Management
 
