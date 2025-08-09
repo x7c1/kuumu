@@ -15,10 +15,12 @@
     "dev:layouter-example": "npm run dev -w @kuumu/three-js-layouter-example",
     "build:layouter-example": "npm run build -w @kuumu/three-js-layouter-example",
 
+    "biome:check": "biome check --write",
     "fonts:setup": "./scripts/download-fonts.sh",
     "tauri:desktop": "npm run tauri -w @kuumu/kuumu-desktop"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.0.5",
     "@tauri-apps/cli": "^2",
     "typescript": "~5.6.2"
   }

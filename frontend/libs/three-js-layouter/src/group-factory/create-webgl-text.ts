@@ -21,6 +21,7 @@ export function createWebGLText(
       size: fontSize,
       height: 0,
       depth: 0,
+      letterSpacing: -0.1,
       curveSegments: 12,
       bevelEnabled: false,
       bevelThickness: 0,

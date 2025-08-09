@@ -14,7 +14,8 @@ export interface DebugPanelConfig {
 export class DebugPanel {
   private static readonly STORAGE_KEY = 'three-js-layouter-example-selected';
   private static readonly ALIGNMENT_STORAGE_KEY = 'three-js-layouter-alignment-selected';
-  private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY = 'three-js-layouter-vertical-alignment-selected';
+  private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY =
+    'three-js-layouter-vertical-alignment-selected';
   private static readonly PROJECTION_STORAGE_KEY = 'three-js-layouter-projection-selected';
   private static readonly WIREFRAME_STORAGE_KEY = 'three-js-layouter-wireframe-enabled';
   private static readonly HEIGHT_MODE_STORAGE_KEY = 'three-js-layouter-height-mode-selected';
@@ -106,7 +107,9 @@ export class DebugPanel {
       this.updateChildOptionsVisibility(savedExample);
     } else {
       // Default case - check which example is currently selected
-      const checkedExample = document.querySelector('input[name="example"]:checked') as HTMLInputElement;
+      const checkedExample = document.querySelector(
+        'input[name="example"]:checked'
+      ) as HTMLInputElement;
       if (checkedExample) {
         this.updateChildOptionsVisibility(checkedExample.value);
       }
@@ -303,8 +306,7 @@ export class DebugPanel {
     }
 
     if (verticalAlignmentOptions) {
-      verticalAlignmentOptions.style.display =
-        exampleType === 'simple-vertical' ? 'block' : 'none';
+      verticalAlignmentOptions.style.display = exampleType === 'simple-vertical' ? 'block' : 'none';
     }
   }
 

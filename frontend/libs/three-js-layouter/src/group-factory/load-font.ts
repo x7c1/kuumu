@@ -3,12 +3,15 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TTFLoader } from 'three/examples/jsm/loaders/TTFLoader.js';
 
 interface TTFLoaderResult {
-  glyphs: Record<string, {
-    ha: number;        // horizontal advance width
-    x_min: number;     // minimum x coordinate
-    x_max: number;     // maximum x coordinate
-    o: string;         // outline commands as string
-  }>;
+  glyphs: Record<
+    string,
+    {
+      ha: number; // horizontal advance width
+      x_min: number; // minimum x coordinate
+      x_max: number; // maximum x coordinate
+      o: string; // outline commands as string
+    }
+  >;
   familyName: string;
   ascender: number;
   descender: number;
@@ -149,8 +152,14 @@ function validateRelativeFontPath(fontPath: string): void {
     throw new Error('Font path cannot be empty');
   }
 
-  if (fontPath.startsWith('/') || fontPath.startsWith('http://') || fontPath.startsWith('https://')) {
-    throw new Error('Only relative font paths are supported. Absolute paths and URLs are not allowed.');
+  if (
+    fontPath.startsWith('/') ||
+    fontPath.startsWith('http://') ||
+    fontPath.startsWith('https://')
+  ) {
+    throw new Error(
+      'Only relative font paths are supported. Absolute paths and URLs are not allowed.'
+    );
   }
 
   if (!fontPath.endsWith('.ttf') && !fontPath.endsWith('.otf')) {

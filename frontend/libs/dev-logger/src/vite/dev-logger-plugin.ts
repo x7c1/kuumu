@@ -29,7 +29,7 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
         const content = fs.readFileSync(logFilePath, 'utf-8').trim();
         if (content) {
           // Parse NDJSON format (each line is a separate JSON object)
-          logs = content.split('\n').map(line => JSON.parse(line));
+          logs = content.split('\n').map((line) => JSON.parse(line));
         } else {
           logs = [];
         }
@@ -61,7 +61,7 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
       }
 
       // Write each log entry as a separate JSON line (NDJSON format)
-      const ndjsonContent = logs.map(log => JSON.stringify(log)).join('\n');
+      const ndjsonContent = logs.map((log) => JSON.stringify(log)).join('\n');
       fs.writeFileSync(logFilePath, ndjsonContent + (logs.length > 0 ? '\n' : ''));
     } catch (err) {
       console.warn('Failed to rewrite logs:', err);
