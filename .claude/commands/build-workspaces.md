@@ -9,7 +9,7 @@ npm run build --workspaces
 ```
 
 ## Process
-- Run `npm run biome:check` to format and lint code
+- Run `npm run biome:check-write` to format and lint code
 - If there are any warnings from biome, fix them before proceeding
 - Run the build command across all workspaces
 - If there are any errors, analyze and fix them
