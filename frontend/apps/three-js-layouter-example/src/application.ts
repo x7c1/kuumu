@@ -26,7 +26,7 @@ export class Application {
   private cameraController: CameraController;
   private config: ApplicationConfig;
   private currentExampleType: ExampleType = 'simple-container';
-  private currentAlignment: 'center' | 'top' = 'center';
+  private currentHorizontalAlignment: 'center' | 'top' = 'center';
   private currentVerticalAlignment: 'center' | 'left' = 'left';
   private wireframeEnabled: boolean = false;
   private currentHeightMode: 'fixed' | 'dynamic' = 'dynamic';
@@ -57,7 +57,7 @@ export class Application {
 
   async initialize(options?: {
     example?: ExampleType;
-    alignment?: 'center' | 'top';
+    horizontalAlignment?: 'center' | 'top';
     verticalAlignment?: 'center' | 'left';
     projection?: string;
     wireframe?: boolean;
@@ -72,8 +72,8 @@ export class Application {
     if (options?.example) {
       this.currentExampleType = options.example;
     }
-    if (options?.alignment) {
-      this.currentAlignment = options.alignment;
+    if (options?.horizontalAlignment) {
+      this.currentHorizontalAlignment = options.horizontalAlignment;
     }
     if (options?.verticalAlignment) {
       this.currentVerticalAlignment = options.verticalAlignment;
@@ -106,8 +106,8 @@ export class Application {
     this.logDebugInfo();
   }
 
-  async switchAlignment(alignment: 'center' | 'top'): Promise<void> {
-    this.currentAlignment = alignment;
+  async switchHorizontalAlignment(horizontalAlignment: 'center' | 'top'): Promise<void> {
+    this.currentHorizontalAlignment = horizontalAlignment;
     await this.loadCurrentExample();
     this.logDebugInfo();
   }
@@ -274,7 +274,7 @@ export class Application {
       case 'simple-container':
         return { type: 'simple-container', ...baseParams };
       case 'simple-horizontal':
-        return { type: 'simple-horizontal', ...baseParams, alignment: this.currentAlignment };
+        return { type: 'simple-horizontal', ...baseParams, alignment: this.currentHorizontalAlignment };
       case 'simple-vertical':
         return { type: 'simple-vertical', ...baseParams, verticalAlignment: this.currentVerticalAlignment };
     }

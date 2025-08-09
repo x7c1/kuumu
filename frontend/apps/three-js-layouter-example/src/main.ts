@@ -94,7 +94,7 @@ const debugPanel = new DebugPanel({
     await app.switchExample(exampleType);
   },
   onAlignmentChange: async (alignment: string) => {
-    await app.switchAlignment(alignment as 'center' | 'top');
+    await app.switchHorizontalAlignment(alignment as 'center' | 'top');
   },
   onVerticalAlignmentChange: async (verticalAlignment: string) => {
     await app.switchVerticalAlignment(verticalAlignment as 'center' | 'left');
@@ -131,7 +131,7 @@ const savedAxisHelper = debugPanel.getSavedAxisHelper();
 try {
   await app.initialize({
     example: isValidExampleType(savedExample) ? savedExample : undefined,
-    alignment: savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
+    horizontalAlignment: savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
     verticalAlignment: savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left' ? savedVerticalAlignment : undefined,
     projection: savedProjection || undefined,
     wireframe: savedWireframe,
