@@ -8,13 +8,13 @@ import type { Group } from 'three';
 import * as THREE from 'three';
 import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { buildExample, type ExampleParams, type ExampleType } from './build-example';
-import { type CameraConfig, CameraController, type ZoomConfig } from './camera-controller';
+import { type CameraRouterConfig, CameraRouter, type ZoomConfig } from './camera-controller';
 import { loadFont } from './load-font';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
 export interface ApplicationConfig {
   scene: SceneConfig;
-  camera: CameraConfig;
+  camera: CameraRouterConfig;
   zoom: ZoomConfig;
 }
 
@@ -23,7 +23,7 @@ const BASE_ORTHOGRAPHIC_SIZE = 50;
 
 export class Application {
   private sceneManager: SceneManager;
-  private cameraController: CameraController;
+  private cameraController: CameraRouter;
   private config: ApplicationConfig;
   private currentExampleType: ExampleType = 'simple-container';
   private currentHorizontalAlignment: 'center' | 'top' = 'center';
@@ -48,7 +48,7 @@ export class Application {
       ...config.camera,
       size: orthographicSize,
     };
-    this.cameraController = new CameraController(defaultCameraConfig, config.zoom);
+    this.cameraController = new CameraRouter(defaultCameraConfig, config.zoom);
     this.cameraController.setupEventListeners();
 
     // Update scaling when window resizes
@@ -205,7 +205,7 @@ export class Application {
   }
 
   private updateCameraInitialConfig(
-    standardConfig: CameraConfig & { fov?: number; size?: number }
+    standardConfig: CameraRouterConfig & { fov?: number; size?: number }
   ): void {
     // Update the camera controller's initial config
     this.cameraController.updateInitialConfig(standardConfig);

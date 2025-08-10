@@ -1,5 +1,6 @@
 import type * as THREE from 'three';
-import type { CameraConfig } from './camera-controller/index';
+import type { CameraRouterConfig } from './camera-controller/index';
+import type { OrthographicCameraConfig, PerspectiveCameraConfig } from './camera-controller/index';
 
 export function calculateCurrentVisualSize(camera: THREE.Camera, position: THREE.Vector3): number {
   if (camera.type === 'OrthographicCamera') {
@@ -17,7 +18,7 @@ export function calculateCurrentVisualSize(camera: THREE.Camera, position: THREE
 export function createPerspectiveConfig(
   _visualSize: number,
   _distance: number
-): Partial<CameraConfig> {
+): Partial<CameraRouterConfig> {
   // Use a standard FOV for more natural perspective
   const standardFov = 50; // Standard human-like field of view
 
@@ -27,11 +28,33 @@ export function createPerspectiveConfig(
   };
 }
 
-export function createOrthographicConfig(visualSize: number): Partial<CameraConfig> {
+// New, properly typed version
+export function createPerspectiveConfigTyped(
+  _visualSize: number,
+  _distance: number
+): Pick<PerspectiveCameraConfig, 'fov'> {
+  // Use a standard FOV for more natural perspective
+  const standardFov = 50; // Standard human-like field of view
+
+  return {
+    fov: standardFov,
+  };
+}
+
+export function createOrthographicConfig(visualSize: number): Partial<CameraRouterConfig> {
   const newOrthographicSize = visualSize;
 
   return {
     size: newOrthographicSize,
     fov: undefined,
+  };
+}
+
+// New, properly typed version
+export function createOrthographicConfigTyped(visualSize: number): Pick<OrthographicCameraConfig, 'size'> {
+  const newOrthographicSize = visualSize;
+
+  return {
+    size: newOrthographicSize,
   };
 }

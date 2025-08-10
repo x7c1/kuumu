@@ -1,64 +1,96 @@
-import type * as THREE from 'three';
-import {
-  type OrthographicCameraConfig,
-  OrthographicCameraController,
-} from './orthographic-camera-controller';
-import {
-  type PerspectiveCameraConfig,
-  PerspectiveCameraController,
-} from './perspective-camera-controller';
+import * as THREE from 'three';
+import { CameraEventHandler } from './camera-event-handler';
+import { SphericalCoordinates } from './spherical-coordinates';
+import { ScreenCenterCalculator } from './screen-center-calculator';
+import { CameraReset } from './camera-reset';
+import { MouseMovementHandler, type MovementHandlers } from './mouse-movement-handler';
 import type { ZoomConfig } from './zoom-strategy';
 
 export interface CameraConfig {
-  size?: number;
-  fov?: number;
+  position: { x: number; y: number; z: number };
   aspect: number;
   near: number;
   far: number;
-  position: { x: number; y: number; z: number };
 }
 
-type CameraControllerImplementation = OrthographicCameraController | PerspectiveCameraController;
+export abstract class CameraController<
+  TCamera extends THREE.Camera,
+  TConfig extends CameraConfig
+> {
+  public readonly camera: TCamera;
+  protected readonly eventHandler: CameraEventHandler;
+  protected readonly sphericalCoords: SphericalCoordinates;
+  protected readonly cameraReset: CameraReset;
+  protected readonly mouseMovementHandler: MouseMovementHandler;
 
-export class CameraController {
-  private implementation: CameraControllerImplementation;
+  // Callbacks
+  protected showRotationCenterCallback?: (position: THREE.Vector3) => void;
+  protected hideRotationCenterCallback?: () => void;
+  protected updateRotationCenterScaleCallback?: () => void;
 
-  constructor(cameraConfig: CameraConfig, zoomConfig: ZoomConfig) {
-    if (cameraConfig.size !== undefined) {
-      // Create orthographic camera controller
-      const orthoConfig: OrthographicCameraConfig = {
-        size: cameraConfig.size,
-        aspect: cameraConfig.aspect,
-        near: cameraConfig.near,
-        far: cameraConfig.far,
-        position: cameraConfig.position,
-      };
-      this.implementation = new OrthographicCameraController(orthoConfig, zoomConfig);
-    } else if (cameraConfig.fov !== undefined) {
-      // Create perspective camera controller
-      const perspConfig: PerspectiveCameraConfig = {
-        fov: cameraConfig.fov,
-        aspect: cameraConfig.aspect,
-        near: cameraConfig.near,
-        far: cameraConfig.far,
-        position: cameraConfig.position,
-      };
-      this.implementation = new PerspectiveCameraController(perspConfig, zoomConfig);
-    } else {
-      throw new Error('Either size or fov must be provided in camera config');
-    }
+  protected screenCenterWorld = new THREE.Vector3();
+  protected initialConfig: TConfig;
+
+  constructor(cameraConfig: TConfig, _zoomConfig: ZoomConfig) {
+    this.initialConfig = { ...cameraConfig };
+    this.camera = this.createCamera(cameraConfig);
+    this.setupInitialPosition(cameraConfig);
+
+    // Initialize screen center and spherical coordinates
+    this.updateScreenCenterWorld();
+    this.sphericalCoords = new SphericalCoordinates(
+      this.screenCenterWorld,
+      this.camera.position
+    );
+
+    // Initialize reset functionality
+    this.cameraReset = new CameraReset(
+      this.camera,
+      { position: this.initialConfig.position },
+      this.onResetFinalized.bind(this)
+    );
+
+    // Initialize mouse movement handler
+    const movementHandlers: MovementHandlers = {
+      handlePlanar: this.handlePlanarMovement.bind(this),
+      handleDepth: this.handleDepthMovement.bind(this),
+      handleRotation: this.handleRotation.bind(this),
+    };
+    this.mouseMovementHandler = new MouseMovementHandler(movementHandlers);
+
+    // Create event handler
+    this.eventHandler = new CameraEventHandler(
+      this.handleWheel.bind(this),
+      this.handleResize.bind(this),
+      this.handleMouseMove.bind(this),
+      this.handleMouseDown.bind(this),
+      () => this.hideRotationCenterCallback?.(),
+      this.resetCamera.bind(this)
+    );
   }
 
-  get camera(): THREE.Camera {
-    return this.implementation.camera;
-  }
+  // Abstract methods to be implemented by subclasses
+  protected abstract createCamera(config: TConfig): TCamera;
+  protected abstract handleWheel(event: WheelEvent): void;
+  protected abstract handleResize(): void;
+  protected abstract handlePlanarMovement(
+    deltaX: number,
+    deltaY: number,
+    startPos: { x: number; y: number; z: number }
+  ): void;
+  protected abstract handleDepthMovement(
+    deltaY: number,
+    startPos: { x: number; y: number; z: number }
+  ): void;
+  protected abstract onResetFinalized(): void;
 
+  // Common methods
   setRenderCallback(callback: () => void): void {
-    this.implementation.setRenderCallback(callback);
+    this.eventHandler.setRenderCallback(callback);
   }
 
   setContinuousRenderCallback(callback: (enabled: boolean) => void): void {
-    this.implementation.setContinuousRenderCallback(callback);
+    this.eventHandler.setContinuousRenderCallback(callback);
   }
 
   setRotationCenterCallback(
@@ -66,61 +98,113 @@ export class CameraController {
     hideCallback: () => void,
     updateScaleCallback?: () => void
   ): void {
-    this.implementation.setRotationCenterCallback(showCallback, hideCallback, updateScaleCallback);
+    this.showRotationCenterCallback = showCallback;
+    this.hideRotationCenterCallback = hideCallback;
+    this.updateRotationCenterScaleCallback = updateScaleCallback;
   }
 
   setupEventListeners(): void {
-    this.implementation.setupEventListeners();
+    this.eventHandler.setupEventListeners();
   }
 
-  getCurrentZoomState(): { type: string; value: number } {
-    if (this.camera.type === 'OrthographicCamera') {
-      return {
-        type: 'orthographic',
-        value: (this.implementation as OrthographicCameraController).getCurrentSize(),
-      };
-    } else {
-      return {
-        type: 'perspective',
-        value: (this.implementation as PerspectiveCameraController).getCurrentDistance(),
-      };
+  protected setupInitialPosition(config: TConfig): void {
+    this.camera.position.set(
+      config.position.x,
+      config.position.y,
+      config.position.z
+    );
+    this.camera.lookAt(0, 0, 0);
+    (this.camera as any).updateProjectionMatrix();
+  }
+
+  protected updateScreenCenterWorld(): void {
+    this.screenCenterWorld.copy(
+      ScreenCenterCalculator.calculateScreenCenterWorld(this.camera)
+    );
+    this.sphericalCoords?.updateScreenCenter(this.screenCenterWorld);
+  }
+
+  protected handleMouseDown(event: MouseEvent): void {
+    this.eventHandler.setDragStartCameraPosition(
+      this.camera.position.x,
+      this.camera.position.y,
+      this.camera.position.z
+    );
+
+    // For rotation, update screen center and spherical coordinates
+    if (event.ctrlKey) {
+      this.updateScreenCenterWorld();
+      this.sphericalCoords.updateFromPosition(this.camera.position);
+
+      // Show rotation center indicator
+      if (this.showRotationCenterCallback) {
+        this.showRotationCenterCallback(this.screenCenterWorld);
+      }
     }
+
+    // Store current spherical coordinates for rotation
+    this.eventHandler.setDragStartCameraRotation(
+      this.sphericalCoords.getPhi(),
+      this.sphericalCoords.getTheta()
+    );
+  }
+
+  protected handleMouseMove(
+    deltaX: number,
+    deltaY: number,
+    startPos: { x: number; y: number; z: number },
+    startRotation: { x: number; y: number },
+    isShiftPressed: boolean,
+    isCtrlPressed: boolean
+  ): void {
+    this.mouseMovementHandler.handleMouseMove(
+      deltaX,
+      deltaY,
+      startPos,
+      startRotation,
+      isShiftPressed,
+      isCtrlPressed
+    );
+  }
+
+  protected handleRotation(
+    deltaX: number,
+    deltaY: number,
+    startRotation: { x: number; y: number }
+  ): void {
+    this.sphericalCoords.calculateRotation(
+      deltaX,
+      deltaY,
+      startRotation.x,
+      startRotation.y
+    );
+
+    // Get current distance from screen center
+    const distance = this.camera.position.distanceTo(this.screenCenterWorld);
+
+    // Convert spherical coordinates to Cartesian position
+    const newPosition = this.sphericalCoords.toCartesian(distance);
+    this.camera.position.copy(newPosition);
+
+    // Look at the screen center
+    this.camera.lookAt(this.screenCenterWorld);
+
+    this.onRotationComplete();
+  }
+
+  protected onRotationComplete(): void {
+    (this.camera as any).updateProjectionMatrix();
+  }
+
+  protected resetCamera(): void {
+    this.cameraReset.execute();
+  }
+
+  updateInitialConfig(newConfig: TConfig): void {
+    this.initialConfig = { ...newConfig };
   }
 
   dispose(): void {
-    this.implementation.dispose();
-  }
-
-  recreateWithConfig(newConfig: CameraConfig, zoomConfig: ZoomConfig): CameraController {
-    // Dispose this controller
-    this.dispose();
-
-    // Create new controller with new config
-    const newController = new CameraController(newConfig, zoomConfig);
-    newController.setupEventListeners();
-
-    return newController;
-  }
-
-  preservePositionAndRecreate(
-    baseConfig: CameraConfig,
-    zoomConfig: ZoomConfig,
-    cameraSpecificConfig: { fov?: number; size?: number }
-  ): CameraController {
-    // Use the position from baseConfig (which already contains the desired position)
-    const newConfig = {
-      ...baseConfig,
-      ...cameraSpecificConfig,
-      // Don't override position - use the one from baseConfig
-    };
-
-    return this.recreateWithConfig(newConfig, zoomConfig);
-  }
-
-  updateInitialConfig(standardConfig: CameraConfig & { fov?: number; size?: number }): void {
-    // Delegate to the implementation
-    if ('updateInitialConfig' in this.implementation) {
-      (this.implementation as any).updateInitialConfig(standardConfig);
-    }
+    this.eventHandler.dispose();
   }
 }
