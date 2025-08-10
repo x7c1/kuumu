@@ -13,60 +13,28 @@ import type { ZoomConfig } from './zoom-strategy';
 export type CameraControllerConfig = OrthographicCameraConfig | PerspectiveCameraConfig;
 
 // Type guard functions for discriminated union
-export function isOrthographicConfig(config: CameraControllerConfig | CameraRouterConfig): config is OrthographicCameraConfig {
-  return 'size' in config && config.size !== undefined;
+export function isOrthographicConfig(config: CameraControllerConfig): config is OrthographicCameraConfig {
+  return 'size' in config;
 }
 
-export function isPerspectiveConfig(config: CameraControllerConfig | CameraRouterConfig): config is PerspectiveCameraConfig {
-  return 'fov' in config && config.fov !== undefined;
+export function isPerspectiveConfig(config: CameraControllerConfig): config is PerspectiveCameraConfig {
+  return 'fov' in config;
 }
 
-export interface CameraRouterConfig {
-  size?: number;
-  fov?: number;
-  aspect: number;
-  near: number;
-  far: number;
-  position: { x: number; y: number; z: number };
-}
 
 type CameraControllerImplementation = OrthographicCameraController | PerspectiveCameraController;
 
 export class CameraRouter {
   private implementation: CameraControllerImplementation;
 
-  constructor(cameraConfig: CameraRouterConfig, zoomConfig: ZoomConfig);
-  constructor(cameraConfig: CameraControllerConfig, zoomConfig: ZoomConfig);
-  constructor(cameraConfig: CameraRouterConfig | CameraControllerConfig, zoomConfig: ZoomConfig) {
-    // Handle new Union type with type guards
+  constructor(cameraConfig: CameraControllerConfig, zoomConfig: ZoomConfig) {
+    // Handle Union type with type guards
     if (isOrthographicConfig(cameraConfig)) {
       this.implementation = new OrthographicCameraController(cameraConfig, zoomConfig);
     } else if (isPerspectiveConfig(cameraConfig)) {
       this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig);
-    }
-    // Handle legacy CameraRouterConfig
-    else if (cameraConfig.size !== undefined) {
-      // Create orthographic camera controller
-      const orthoConfig: OrthographicCameraConfig = {
-        size: cameraConfig.size,
-        aspect: cameraConfig.aspect,
-        near: cameraConfig.near,
-        far: cameraConfig.far,
-        position: cameraConfig.position,
-      };
-      this.implementation = new OrthographicCameraController(orthoConfig, zoomConfig);
-    } else if (cameraConfig.fov !== undefined) {
-      // Create perspective camera controller
-      const perspConfig: PerspectiveCameraConfig = {
-        fov: cameraConfig.fov,
-        aspect: cameraConfig.aspect,
-        near: cameraConfig.near,
-        far: cameraConfig.far,
-        position: cameraConfig.position,
-      };
-      this.implementation = new PerspectiveCameraController(perspConfig, zoomConfig);
     } else {
-      throw new Error('Either size or fov must be provided in camera config');
+      throw new Error('Invalid camera configuration: must be either OrthographicCameraConfig or PerspectiveCameraConfig');
     }
   }
 
@@ -112,7 +80,7 @@ export class CameraRouter {
     this.implementation.dispose();
   }
 
-  recreateWithConfig(newConfig: CameraRouterConfig, zoomConfig: ZoomConfig): CameraRouter {
+  recreateWithConfig(newConfig: CameraControllerConfig, zoomConfig: ZoomConfig): CameraRouter {
     // Dispose this controller
     this.dispose();
 
@@ -124,21 +92,30 @@ export class CameraRouter {
   }
 
   preservePositionAndRecreate(
-    baseConfig: CameraRouterConfig,
+    baseConfig: CameraControllerConfig,
     zoomConfig: ZoomConfig,
     cameraSpecificConfig: { fov?: number; size?: number }
   ): CameraRouter {
-    // Use the position from baseConfig (which already contains the desired position)
-    const newConfig = {
-      ...baseConfig,
-      ...cameraSpecificConfig,
-      // Don't override position - use the one from baseConfig
-    };
+    // Create proper Union type config based on camera type
+    let newConfig: CameraControllerConfig;
+    if (cameraSpecificConfig.size !== undefined) {
+      newConfig = {
+        ...baseConfig,
+        size: cameraSpecificConfig.size,
+      } as OrthographicCameraConfig;
+    } else if (cameraSpecificConfig.fov !== undefined) {
+      newConfig = {
+        ...baseConfig,
+        fov: cameraSpecificConfig.fov,
+      } as PerspectiveCameraConfig;
+    } else {
+      throw new Error('Either size or fov must be provided in cameraSpecificConfig');
+    }
 
     return this.recreateWithConfig(newConfig, zoomConfig);
   }
 
-  updateInitialConfig(standardConfig: CameraRouterConfig & { fov?: number; size?: number }): void {
+  updateInitialConfig(standardConfig: CameraControllerConfig): void {
     // Delegate to the implementation
     if ('updateInitialConfig' in this.implementation) {
       (this.implementation as any).updateInitialConfig(standardConfig);

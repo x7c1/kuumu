@@ -28,6 +28,7 @@ const config = {
     near: 0.01,
     far: 200,
     position: { x: 0, y: 0, z: 50 },
+    size: 50, // Default orthographic size
   },
   zoom: {
     // Maximum zoom in (smaller number = more zoomed in)

@@ -1,4 +1,4 @@
-export { type CameraRouterConfig, type CameraControllerConfig, CameraRouter } from './camera-router';
+export { type CameraControllerConfig, CameraRouter } from './camera-router';
 export { type CameraConfig, CameraController } from './camera-controller';
 export { type OrthographicCameraConfig } from './orthographic-camera-controller';
 export { type PerspectiveCameraConfig } from './perspective-camera-controller';

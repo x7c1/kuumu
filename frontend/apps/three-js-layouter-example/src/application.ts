@@ -8,13 +8,13 @@ import type { Group } from 'three';
 import * as THREE from 'three';
 import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { buildExample, type ExampleParams, type ExampleType } from './build-example';
-import { type CameraRouterConfig, CameraRouter, type ZoomConfig } from './camera-controller';
+import { type CameraControllerConfig, type OrthographicCameraConfig, CameraRouter, type ZoomConfig } from './camera-controller';
 import { loadFont } from './load-font';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
 export interface ApplicationConfig {
   scene: SceneConfig;
-  camera: CameraRouterConfig;
+  camera: CameraControllerConfig;
   zoom: ZoomConfig;
 }
 
@@ -44,10 +44,10 @@ export class Application {
     // Default to orthographic camera if no projection is specified
     // Scale the camera size inversely to maintain consistent visual size
     const orthographicSize = BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
-    const defaultCameraConfig = {
+    const defaultCameraConfig: CameraControllerConfig = {
       ...config.camera,
       size: orthographicSize,
-    };
+    } as OrthographicCameraConfig;
     this.cameraController = new CameraRouter(defaultCameraConfig, config.zoom);
     this.cameraController.setupEventListeners();
 
@@ -170,11 +170,20 @@ export class Application {
     };
 
     // Create standard initial config for reset functionality
-    const standardInitialConfig = {
-      ...this.config.camera,
-      position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
-      ...cameraSpecificConfig,
-    };
+    let standardInitialConfig: CameraControllerConfig;
+    if (projection === 'orthographic') {
+      standardInitialConfig = {
+        ...this.config.camera,
+        position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+        size: STANDARD_ORTHOGRAPHIC_SIZE,
+      };
+    } else {
+      standardInitialConfig = {
+        ...this.config.camera,
+        position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+        fov: STANDARD_FOV,
+      };
+    }
 
     this.cameraController = this.cameraController.preservePositionAndRecreate(
       baseConfigWithCurrentPosition,
@@ -205,7 +214,7 @@ export class Application {
   }
 
   private updateCameraInitialConfig(
-    standardConfig: CameraRouterConfig & { fov?: number; size?: number }
+    standardConfig: CameraControllerConfig
   ): void {
     // Update the camera controller's initial config
     this.cameraController.updateInitialConfig(standardConfig);
