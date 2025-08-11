@@ -13,14 +13,17 @@ import type { ZoomConfig } from './zoom-strategy';
 export type CameraControllerConfig = OrthographicCameraConfig | PerspectiveCameraConfig;
 
 // Type guard functions for discriminated union
-export function isOrthographicConfig(config: CameraControllerConfig): config is OrthographicCameraConfig {
+export function isOrthographicConfig(
+  config: CameraControllerConfig
+): config is OrthographicCameraConfig {
   return 'size' in config;
 }
 
-export function isPerspectiveConfig(config: CameraControllerConfig): config is PerspectiveCameraConfig {
+export function isPerspectiveConfig(
+  config: CameraControllerConfig
+): config is PerspectiveCameraConfig {
   return 'fov' in config;
 }
-
 
 type CameraControllerImplementation = OrthographicCameraController | PerspectiveCameraController;
 
@@ -34,7 +37,9 @@ export class CameraRouter {
     } else if (isPerspectiveConfig(cameraConfig)) {
       this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig);
     } else {
-      throw new Error('Invalid camera configuration: must be either OrthographicCameraConfig or PerspectiveCameraConfig');
+      throw new Error(
+        'Invalid camera configuration: must be either OrthographicCameraConfig or PerspectiveCameraConfig'
+      );
     }
   }
 
@@ -116,9 +121,17 @@ export class CameraRouter {
   }
 
   updateInitialConfig(standardConfig: CameraControllerConfig): void {
-    // Delegate to the implementation
-    if ('updateInitialConfig' in this.implementation) {
-      (this.implementation as any).updateInitialConfig(standardConfig);
+    // Delegate to the implementation with proper type checking
+    if (
+      isOrthographicConfig(standardConfig) &&
+      this.implementation instanceof OrthographicCameraController
+    ) {
+      this.implementation.updateInitialConfig(standardConfig);
+    } else if (
+      isPerspectiveConfig(standardConfig) &&
+      this.implementation instanceof PerspectiveCameraController
+    ) {
+      this.implementation.updateInitialConfig(standardConfig);
     }
   }
 }

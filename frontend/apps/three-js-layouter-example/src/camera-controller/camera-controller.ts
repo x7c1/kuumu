@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { CameraEventHandler } from './camera-event-handler';
-import { SphericalCoordinates } from './spherical-coordinates';
-import { ScreenCenterCalculator } from './screen-center-calculator';
 import { CameraReset } from './camera-reset';
 import { MouseMovementHandler, type MovementHandlers } from './mouse-movement-handler';
+import { ScreenCenterCalculator } from './screen-center-calculator';
+import { SphericalCoordinates } from './spherical-coordinates';
 import type { ZoomConfig } from './zoom-strategy';
 
 export interface CameraConfig {
@@ -13,10 +13,7 @@ export interface CameraConfig {
   far: number;
 }
 
-export abstract class CameraController<
-  TCamera extends THREE.Camera,
-  TConfig extends CameraConfig
-> {
+export abstract class CameraController<TCamera extends THREE.Camera, TConfig extends CameraConfig> {
   public readonly camera: TCamera;
   protected readonly eventHandler: CameraEventHandler;
   protected readonly sphericalCoords: SphericalCoordinates;
@@ -38,10 +35,7 @@ export abstract class CameraController<
 
     // Initialize screen center and spherical coordinates
     this.updateScreenCenterWorld();
-    this.sphericalCoords = new SphericalCoordinates(
-      this.screenCenterWorld,
-      this.camera.position
-    );
+    this.sphericalCoords = new SphericalCoordinates(this.screenCenterWorld, this.camera.position);
 
     // Initialize reset functionality
     this.cameraReset = new CameraReset(
@@ -83,6 +77,7 @@ export abstract class CameraController<
     startPos: { x: number; y: number; z: number }
   ): void;
   protected abstract onResetFinalized(): void;
+  protected abstract updateProjectionMatrix(): void;
 
   // Common methods
   setRenderCallback(callback: () => void): void {
@@ -108,19 +103,13 @@ export abstract class CameraController<
   }
 
   protected setupInitialPosition(config: TConfig): void {
-    this.camera.position.set(
-      config.position.x,
-      config.position.y,
-      config.position.z
-    );
+    this.camera.position.set(config.position.x, config.position.y, config.position.z);
     this.camera.lookAt(0, 0, 0);
-    (this.camera as any).updateProjectionMatrix();
+    this.updateProjectionMatrix();
   }
 
   protected updateScreenCenterWorld(): void {
-    this.screenCenterWorld.copy(
-      ScreenCenterCalculator.calculateScreenCenterWorld(this.camera)
-    );
+    this.screenCenterWorld.copy(ScreenCenterCalculator.calculateScreenCenterWorld(this.camera));
     this.sphericalCoords?.updateScreenCenter(this.screenCenterWorld);
   }
 
@@ -172,12 +161,7 @@ export abstract class CameraController<
     deltaY: number,
     startRotation: { x: number; y: number }
   ): void {
-    this.sphericalCoords.calculateRotation(
-      deltaX,
-      deltaY,
-      startRotation.x,
-      startRotation.y
-    );
+    this.sphericalCoords.calculateRotation(deltaX, deltaY, startRotation.x, startRotation.y);
 
     // Get current distance from screen center
     const distance = this.camera.position.distanceTo(this.screenCenterWorld);
@@ -193,7 +177,7 @@ export abstract class CameraController<
   }
 
   protected onRotationComplete(): void {
-    (this.camera as any).updateProjectionMatrix();
+    this.updateProjectionMatrix();
   }
 
   protected resetCamera(): void {

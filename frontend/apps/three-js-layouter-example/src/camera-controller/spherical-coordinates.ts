@@ -53,15 +53,9 @@ export class SphericalCoordinates {
   toCartesian(distance: number): THREE.Vector3 {
     const position = new THREE.Vector3();
 
-    position.x =
-      this.screenCenter.x +
-      distance * Math.sin(this.theta) * Math.cos(this.phi);
-    position.y =
-      this.screenCenter.y +
-      distance * Math.cos(this.theta);
-    position.z =
-      this.screenCenter.z +
-      distance * Math.sin(this.theta) * Math.sin(this.phi);
+    position.x = this.screenCenter.x + distance * Math.sin(this.theta) * Math.cos(this.phi);
+    position.y = this.screenCenter.y + distance * Math.cos(this.theta);
+    position.z = this.screenCenter.z + distance * Math.sin(this.theta) * Math.sin(this.phi);
 
     return position;
   }

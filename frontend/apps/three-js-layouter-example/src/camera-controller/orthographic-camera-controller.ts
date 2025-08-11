@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { CameraController, type CameraConfig } from './camera-controller';
-import { OrthographicZoomStrategy, type ZoomConfig } from './zoom-strategy';
 import { CameraConstants } from './camera-constants';
+import { type CameraConfig, CameraController } from './camera-controller';
 import { MouseMovementHandler } from './mouse-movement-handler';
+import { OrthographicZoomStrategy, type ZoomConfig } from './zoom-strategy';
 
 export interface OrthographicCameraConfig extends CameraConfig {
   size: number;
@@ -25,7 +25,6 @@ export class OrthographicCameraController extends CameraController<
     this.updateOrthographicBounds();
     this.updateNearFarPlanes();
   }
-
 
   protected createCamera(config: OrthographicCameraConfig): THREE.OrthographicCamera {
     return new THREE.OrthographicCamera(
@@ -77,7 +76,6 @@ export class OrthographicCameraController extends CameraController<
     this.camera.updateProjectionMatrix();
   }
 
-
   protected handlePlanarMovement(
     deltaX: number,
     deltaY: number,
@@ -106,7 +104,10 @@ export class OrthographicCameraController extends CameraController<
     this.updateNearFarPlanes();
   }
 
-  protected handleDepthMovement(deltaY: number, startPos: { x: number; y: number; z: number }): void {
+  protected handleDepthMovement(
+    deltaY: number,
+    startPos: { x: number; y: number; z: number }
+  ): void {
     const newZ = Math.max(
       CameraConstants.MIN_CAMERA_DISTANCE,
       startPos.z + deltaY * CameraConstants.DEPTH_SENSITIVITY
@@ -117,19 +118,10 @@ export class OrthographicCameraController extends CameraController<
     this.updateNearFarPlanes();
   }
 
-
-
-
-
   updateInitialConfig(newConfig: OrthographicCameraConfig): void {
     super.updateInitialConfig(newConfig);
     this.cachedSize = newConfig.size;
   }
-
-
-
-
-
 
   private updateNearFarPlanes(): void {
     this.camera.near = CameraConstants.ORTHOGRAPHIC_NEAR;
@@ -162,5 +154,9 @@ export class OrthographicCameraController extends CameraController<
 
   getCurrentSize(): number {
     return this.cachedSize;
+  }
+
+  protected updateProjectionMatrix(): void {
+    this.camera.updateProjectionMatrix();
   }
 }

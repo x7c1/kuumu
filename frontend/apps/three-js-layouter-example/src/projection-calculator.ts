@@ -14,7 +14,6 @@ export function calculateCurrentVisualSize(camera: THREE.Camera, position: THREE
   }
 }
 
-
 export function createPerspectiveConfig(
   _visualSize: number,
   _distance: number
@@ -27,8 +26,9 @@ export function createPerspectiveConfig(
   };
 }
 
-
-export function createOrthographicConfig(visualSize: number): Pick<OrthographicCameraConfig, 'size'> {
+export function createOrthographicConfig(
+  visualSize: number
+): Pick<OrthographicCameraConfig, 'size'> {
   const newOrthographicSize = visualSize;
 
   return {

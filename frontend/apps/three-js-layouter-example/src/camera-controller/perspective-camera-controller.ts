@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { CameraController, type CameraConfig } from './camera-controller';
-import { PerspectiveZoomStrategy, type ZoomConfig } from './zoom-strategy';
 import { CameraConstants } from './camera-constants';
+import { type CameraConfig, CameraController } from './camera-controller';
+import { PerspectiveZoomStrategy, type ZoomConfig } from './zoom-strategy';
 
 export interface PerspectiveCameraConfig extends CameraConfig {
   fov: number;
@@ -23,12 +23,7 @@ export class PerspectiveCameraController extends CameraController<
   }
 
   protected createCamera(config: PerspectiveCameraConfig): THREE.PerspectiveCamera {
-    return new THREE.PerspectiveCamera(
-      config.fov,
-      config.aspect,
-      config.near,
-      config.far
-    );
+    return new THREE.PerspectiveCamera(config.fov, config.aspect, config.near, config.far);
   }
 
   protected handleWheel(event: WheelEvent): void {
@@ -92,8 +87,6 @@ export class PerspectiveCameraController extends CameraController<
     this.camera.updateProjectionMatrix();
   }
 
-
-
   protected handlePlanarMovement(
     deltaX: number,
     deltaY: number,
@@ -115,7 +108,10 @@ export class PerspectiveCameraController extends CameraController<
     this.updateScreenCenterWorld();
   }
 
-  protected handleDepthMovement(deltaY: number, startPos: { x: number; y: number; z: number }): void {
+  protected handleDepthMovement(
+    deltaY: number,
+    startPos: { x: number; y: number; z: number }
+  ): void {
     const newZ = Math.max(
       CameraConstants.MIN_CAMERA_DISTANCE,
       startPos.z + deltaY * CameraConstants.DEPTH_SENSITIVITY
@@ -126,20 +122,11 @@ export class PerspectiveCameraController extends CameraController<
     this.updateNearClippingPlane();
   }
 
-
   updateInitialConfig(newConfig: PerspectiveCameraConfig): void {
     super.updateInitialConfig(newConfig);
     const fovRadians = (newConfig.fov * Math.PI) / 180;
     this.cachedFovTan = Math.tan(fovRadians / 2);
   }
-
-
-
-
-
-
-
-
 
   protected onResetFinalized(): void {
     this.camera.fov = this.initialConfig.fov;
@@ -163,5 +150,9 @@ export class PerspectiveCameraController extends CameraController<
 
   getCurrentDistance(): number {
     return this.camera.position.z;
+  }
+
+  protected updateProjectionMatrix(): void {
+    this.camera.updateProjectionMatrix();
   }
 }

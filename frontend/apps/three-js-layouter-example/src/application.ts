@@ -8,7 +8,12 @@ import type { Group } from 'three';
 import * as THREE from 'three';
 import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { buildExample, type ExampleParams, type ExampleType } from './build-example';
-import { type CameraControllerConfig, type OrthographicCameraConfig, CameraRouter, type ZoomConfig } from './camera-controller';
+import {
+  type CameraControllerConfig,
+  CameraRouter,
+  type OrthographicCameraConfig,
+  type ZoomConfig,
+} from './camera-controller';
 import { loadFont } from './load-font';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
@@ -213,9 +218,7 @@ export class Application {
     this.forceInitialRender();
   }
 
-  private updateCameraInitialConfig(
-    standardConfig: CameraControllerConfig
-  ): void {
+  private updateCameraInitialConfig(standardConfig: CameraControllerConfig): void {
     // Update the camera controller's initial config
     this.cameraController.updateInitialConfig(standardConfig);
   }

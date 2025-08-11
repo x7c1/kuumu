@@ -1,7 +1,11 @@
 import { CameraConstants } from './camera-constants';
 
 export interface MovementHandlers {
-  handlePlanar: (deltaX: number, deltaY: number, startPos: { x: number; y: number; z: number }) => void;
+  handlePlanar: (
+    deltaX: number,
+    deltaY: number,
+    startPos: { x: number; y: number; z: number }
+  ) => void;
   handleDepth: (deltaY: number, startPos: { x: number; y: number; z: number }) => void;
   handleRotation: (deltaX: number, deltaY: number, startRotation: { x: number; y: number }) => void;
 }
