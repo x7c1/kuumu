@@ -31,16 +31,28 @@ export class CameraRouter {
   private implementation: CameraControllerImplementation;
 
   constructor(cameraConfig: CameraControllerConfig, zoomConfig: ZoomConfig) {
+    console.log('[CAMERA_ROUTER] Constructor called with config:', cameraConfig);
+    console.log('[CAMERA_ROUTER] isOrthographicConfig:', isOrthographicConfig(cameraConfig));
+    console.log('[CAMERA_ROUTER] isPerspectiveConfig:', isPerspectiveConfig(cameraConfig));
+
     // Handle Union type with type guards
     if (isOrthographicConfig(cameraConfig)) {
+      console.log('[CAMERA_ROUTER] Creating OrthographicCameraController');
       this.implementation = new OrthographicCameraController(cameraConfig, zoomConfig);
     } else if (isPerspectiveConfig(cameraConfig)) {
+      console.log('[CAMERA_ROUTER] Creating PerspectiveCameraController');
       this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig);
     } else {
+      console.error(
+        '[CAMERA_ROUTER] Invalid config - neither orthographic nor perspective:',
+        cameraConfig
+      );
       throw new Error(
         'Invalid camera configuration: must be either OrthographicCameraConfig or PerspectiveCameraConfig'
       );
     }
+
+    console.log('[CAMERA_ROUTER] Final camera type:', this.implementation.camera.type);
   }
 
   get camera(): THREE.Camera {
@@ -86,6 +98,8 @@ export class CameraRouter {
   }
 
   recreateWithConfig(newConfig: CameraControllerConfig, zoomConfig: ZoomConfig): CameraRouter {
+    console.log('[CAMERA_ROUTER] recreateWithConfig called with config:', newConfig);
+
     // Dispose this controller
     this.dispose();
 
@@ -93,14 +107,23 @@ export class CameraRouter {
     const newController = new CameraRouter(newConfig, zoomConfig);
     newController.setupEventListeners();
 
+    console.log(
+      '[CAMERA_ROUTER] Created new controller with camera type:',
+      newController.camera.type
+    );
     return newController;
   }
 
   preservePositionAndRecreate(
-    baseConfig: CameraControllerConfig,
+    baseConfig: Partial<CameraControllerConfig>,
     zoomConfig: ZoomConfig,
     cameraSpecificConfig: { fov?: number; size?: number }
   ): CameraRouter {
+    console.log('[CAMERA_ROUTER] preservePositionAndRecreate called with:', {
+      baseConfig,
+      cameraSpecificConfig,
+    });
+
     // Create proper Union type config based on camera type
     let newConfig: CameraControllerConfig;
     if (cameraSpecificConfig.size !== undefined) {
@@ -108,16 +131,20 @@ export class CameraRouter {
         ...baseConfig,
         size: cameraSpecificConfig.size,
       } as OrthographicCameraConfig;
+      console.log('[CAMERA_ROUTER] Creating orthographic config:', newConfig);
     } else if (cameraSpecificConfig.fov !== undefined) {
       newConfig = {
         ...baseConfig,
         fov: cameraSpecificConfig.fov,
       } as PerspectiveCameraConfig;
+      console.log('[CAMERA_ROUTER] Creating perspective config:', newConfig);
     } else {
       throw new Error('Either size or fov must be provided in cameraSpecificConfig');
     }
 
-    return this.recreateWithConfig(newConfig, zoomConfig);
+    const result = this.recreateWithConfig(newConfig, zoomConfig);
+    console.log('[CAMERA_ROUTER] Recreated camera type:', result.camera.type);
+    return result;
   }
 
   updateInitialConfig(standardConfig: CameraControllerConfig): void {

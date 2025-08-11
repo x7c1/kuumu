@@ -58,7 +58,12 @@ export class CameraReset {
   }
 
   execute(): void {
+    console.log('[CAMERA_RESET] Execute called');
+    console.log('[CAMERA_RESET] Current camera position:', this.camera.position);
+    console.log('[CAMERA_RESET] Initial config position:', this.initialConfig.position);
+
     const isAlreadyLookingAtOrigin = this.isLookingAtOrigin();
+    console.log('[CAMERA_RESET] Is looking at origin:', isAlreadyLookingAtOrigin);
 
     if (isAlreadyLookingAtOrigin) {
       this.resetToInitialState();
@@ -69,6 +74,11 @@ export class CameraReset {
     // Call finalization callback if provided
     this.onReset?.();
 
-    console.log('[CAMERA_RESET] Camera reset complete');
+    console.log('[CAMERA_RESET] Camera reset complete, new position:', this.camera.position);
+  }
+
+  updateInitialConfig(newConfig: CameraResetConfig): void {
+    this.initialConfig = { ...newConfig };
+    console.log('[CAMERA_RESET] Initial config updated:', this.initialConfig);
   }
 }

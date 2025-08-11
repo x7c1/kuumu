@@ -186,6 +186,8 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
 
   updateInitialConfig(newConfig: TConfig): void {
     this.initialConfig = { ...newConfig };
+    // Update camera reset configuration as well
+    this.cameraReset.updateInitialConfig({ position: this.initialConfig.position });
   }
 
   dispose(): void {

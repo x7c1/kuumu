@@ -12,6 +12,7 @@ import {
   type CameraControllerConfig,
   CameraRouter,
   type OrthographicCameraConfig,
+  type PerspectiveCameraConfig,
   type ZoomConfig,
 } from './camera-controller';
 import { loadFont } from './load-font';
@@ -28,7 +29,7 @@ const BASE_ORTHOGRAPHIC_SIZE = 50;
 
 export class Application {
   private sceneManager: SceneManager;
-  private cameraController: CameraRouter;
+  private cameraController!: CameraRouter;
   private config: ApplicationConfig;
   private currentExampleType: ExampleType = 'simple-container';
   private currentHorizontalAlignment: 'center' | 'top' = 'center';
@@ -41,20 +42,10 @@ export class Application {
     this.sceneManager = new SceneManager(config.scene, container);
 
     // Initialize scaling system
-    const scalingSystem = initializeScalingSystem();
+    initializeScalingSystem();
 
     // Initialize unit system
     initializeUnitSystem();
-
-    // Default to orthographic camera if no projection is specified
-    // Scale the camera size inversely to maintain consistent visual size
-    const orthographicSize = BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
-    const defaultCameraConfig: CameraControllerConfig = {
-      ...config.camera,
-      size: orthographicSize,
-    } as OrthographicCameraConfig;
-    this.cameraController = new CameraRouter(defaultCameraConfig, config.zoom);
-    this.cameraController.setupEventListeners();
 
     // Update scaling when window resizes
     this.setupResizeListener();
@@ -73,6 +64,9 @@ export class Application {
       throw new Error('Failed to load font');
     }
 
+    // Initialize camera with projection preference
+    this.initializeCamera(options?.projection);
+
     // Set initial values if provided
     if (options?.example) {
       this.currentExampleType = options.example;
@@ -83,11 +77,8 @@ export class Application {
     if (options?.verticalAlignment) {
       this.currentVerticalAlignment = options.verticalAlignment;
     }
-    if (options?.projection) {
-      this.switchProjection(options.projection);
-    }
     if (options?.wireframe !== undefined) {
-      this.switchWireframe(options.wireframe);
+      await this.switchWireframe(options.wireframe);
     }
     if (options?.heightMode) {
       this.currentHeightMode = options.heightMode;
@@ -103,6 +94,44 @@ export class Application {
     this.forceInitialRender();
 
     this.logDebugInfo();
+  }
+
+  private initializeCamera(projection?: string): void {
+    const scalingSystem = getScalingSystem();
+
+    // Use fixed, stable values to prevent accumulation of rounding errors
+    const STANDARD_ORTHOGRAPHIC_SIZE = BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
+    const STANDARD_PERSPECTIVE_DISTANCE = 50;
+    const STANDARD_FOV = 50;
+
+    // Create base config without size or fov to avoid conflicts
+    const baseConfig = {
+      aspect: this.config.camera.aspect,
+      near: this.config.camera.near,
+      far: this.config.camera.far,
+      position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+    };
+
+    let cameraConfig: CameraControllerConfig;
+
+    if (projection === 'perspective') {
+      cameraConfig = {
+        ...baseConfig,
+        fov: STANDARD_FOV,
+      } as PerspectiveCameraConfig;
+      console.log('[CAMERA_INIT] Initializing with perspective camera');
+    } else {
+      // Default to orthographic
+      cameraConfig = {
+        ...baseConfig,
+        size: STANDARD_ORTHOGRAPHIC_SIZE,
+      } as OrthographicCameraConfig;
+      console.log('[CAMERA_INIT] Initializing with orthographic camera');
+    }
+
+    console.log('[CAMERA_INIT] Final config:', cameraConfig);
+    this.cameraController = new CameraRouter(cameraConfig, this.config.zoom);
+    this.cameraController.setupEventListeners();
   }
 
   async switchExample(exampleType: ExampleType): Promise<void> {
@@ -124,6 +153,12 @@ export class Application {
   }
 
   switchProjection(projection: string): void {
+    console.log('[PROJECTION_SWITCH] Called with projection:', projection);
+    console.log(
+      '[PROJECTION_SWITCH] Current camera type before switch:',
+      this.cameraController.camera.type
+    );
+
     const currentCamera = this.cameraController.camera;
     const currentPosition = currentCamera.position.clone();
 
@@ -164,9 +199,13 @@ export class Application {
       );
     }
 
-    // Create base config with current position for camera placement
+    console.log('[PROJECTION_SWITCH] Camera specific config:', cameraSpecificConfig);
+
+    // Create base config with current position for camera placement (exclude size/fov)
     const baseConfigWithCurrentPosition = {
-      ...this.config.camera,
+      aspect: this.config.camera.aspect,
+      near: this.config.camera.near,
+      far: this.config.camera.far,
       position: {
         x: finalPosition.x,
         y: finalPosition.y,
@@ -174,27 +213,45 @@ export class Application {
       },
     };
 
+    console.log(
+      '[PROJECTION_SWITCH] Base config with current position:',
+      baseConfigWithCurrentPosition
+    );
+
     // Create standard initial config for reset functionality
+    const baseResetConfig = {
+      aspect: this.config.camera.aspect,
+      near: this.config.camera.near,
+      far: this.config.camera.far,
+      position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+    };
+
     let standardInitialConfig: CameraControllerConfig;
     if (projection === 'orthographic') {
       standardInitialConfig = {
-        ...this.config.camera,
-        position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+        ...baseResetConfig,
         size: STANDARD_ORTHOGRAPHIC_SIZE,
-      };
+      } as OrthographicCameraConfig;
     } else {
       standardInitialConfig = {
-        ...this.config.camera,
-        position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+        ...baseResetConfig,
         fov: STANDARD_FOV,
-      };
+      } as PerspectiveCameraConfig;
     }
+
+    console.log('[PROJECTION_SWITCH] Standard initial config:', standardInitialConfig);
 
     this.cameraController = this.cameraController.preservePositionAndRecreate(
       baseConfigWithCurrentPosition,
       this.config.zoom,
       cameraSpecificConfig
     );
+
+    console.log(
+      '[PROJECTION_SWITCH] After recreate - New camera type:',
+      this.cameraController.camera.type
+    );
+    console.log('[PROJECTION_SWITCH] After recreate - New camera:', this.cameraController.camera);
 
     // Update the camera controller's initial config to standard values
     this.updateCameraInitialConfig(standardInitialConfig);
@@ -207,8 +264,11 @@ export class Application {
 
     this.cameraController.camera.lookAt(lookTarget);
 
-    console.log('[PROJECTION_SWITCH] New camera type:', this.cameraController.camera.type);
-    console.log('[PROJECTION_SWITCH] New camera position:', this.cameraController.camera.position);
+    console.log('[PROJECTION_SWITCH] Final camera type:', this.cameraController.camera.type);
+    console.log(
+      '[PROJECTION_SWITCH] Final camera position:',
+      this.cameraController.camera.position
+    );
 
     this.setupCameraCallbacks();
     this.sceneManager.startRenderLoop(this.cameraController.camera);
