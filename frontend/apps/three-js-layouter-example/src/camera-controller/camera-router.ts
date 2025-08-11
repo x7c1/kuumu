@@ -1,4 +1,4 @@
-import type * as THREE from 'three';
+import * as THREE from 'three';
 import {
   type OrthographicCameraConfig,
   OrthographicCameraController,
@@ -160,5 +160,97 @@ export class CameraRouter {
     ) {
       this.implementation.updateInitialConfig(standardConfig);
     }
+  }
+
+  private captureCurrentState(): {
+    position: THREE.Vector3;
+    direction: THREE.Vector3;
+  } {
+    const currentCamera = this.camera;
+    const direction = new THREE.Vector3();
+    currentCamera.getWorldDirection(direction);
+
+    return {
+      position: currentCamera.position.clone(),
+      direction,
+    };
+  }
+
+  private restoreState(state: ReturnType<typeof CameraRouter.prototype.captureCurrentState>): void {
+    // Restore position
+    this.camera.position.copy(state.position);
+
+    // Restore camera direction by calculating look target
+    const lookTarget = state.position.clone().add(state.direction.multiplyScalar(50));
+    this.camera.lookAt(lookTarget);
+
+    console.log('[CAMERA_ROUTER] Camera position and direction restored');
+  }
+
+  switchProjection(
+    projection: 'orthographic' | 'perspective',
+    config: { camera: CameraControllerConfig; zoom: ZoomConfig }
+  ): void {
+    console.log(`[CAMERA_ROUTER] Switching to ${projection} projection`);
+
+    // Capture current state before switching
+    const currentState = this.captureCurrentState();
+
+    // Dispose current implementation
+    this.implementation.dispose();
+
+    // Create base config for initial camera creation (using standard initial position)
+    const standardInitialPosition = { x: 0, y: 0, z: 50 };
+    const baseConfigForCreation = {
+      aspect: config.camera.aspect,
+      near: config.camera.near,
+      far: config.camera.far,
+      position: standardInitialPosition,
+    };
+
+    let newConfig: CameraControllerConfig;
+    if (projection === 'orthographic') {
+      newConfig = {
+        ...baseConfigForCreation,
+        size: 50, // Standard orthographic size
+      } as OrthographicCameraConfig;
+    } else {
+      newConfig = {
+        ...baseConfigForCreation,
+        fov: 50, // Standard FOV
+      } as PerspectiveCameraConfig;
+    }
+
+    // Create new implementation
+    if (isOrthographicConfig(newConfig)) {
+      this.implementation = new OrthographicCameraController(newConfig, config.zoom);
+    } else if (isPerspectiveConfig(newConfig)) {
+      this.implementation = new PerspectiveCameraController(newConfig, config.zoom);
+    } else {
+      throw new Error('Invalid camera configuration during projection switch');
+    }
+
+    // Setup event listeners for new implementation
+    this.implementation.setupEventListeners();
+
+    // Restore state to new implementation
+    this.restoreState(currentState);
+
+    // Update initial config for reset functionality
+    if (
+      isOrthographicConfig(newConfig) &&
+      this.implementation instanceof OrthographicCameraController
+    ) {
+      this.implementation.updateInitialConfig(newConfig);
+    } else if (
+      isPerspectiveConfig(newConfig) &&
+      this.implementation instanceof PerspectiveCameraController
+    ) {
+      this.implementation.updateInitialConfig(newConfig);
+    }
+
+    console.log(
+      `[CAMERA_ROUTER] Successfully switched to ${projection}, camera type: ${this.camera.type}`
+    );
   }
 }

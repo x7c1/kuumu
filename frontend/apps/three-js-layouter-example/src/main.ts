@@ -101,7 +101,7 @@ const debugPanel = new DebugPanel({
     await app.switchVerticalAlignment(verticalAlignment as 'center' | 'left');
   },
   onProjectionChange: (projection: string) => {
-    app.switchProjection(projection);
+    app.switchProjection(projection as 'orthographic' | 'perspective');
   },
   onWireframeChange: async (wireframe: boolean) => {
     await app.switchWireframe(wireframe);

@@ -15,7 +15,6 @@ import {
   type PerspectiveCameraConfig,
   type ZoomConfig,
 } from './camera-controller';
-import { CameraProjectionSwitcher } from './camera-projection-switcher';
 import { loadFont } from './load-font';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
@@ -32,13 +31,11 @@ export class Application {
   private sceneManager: SceneManager;
   private cameraRouter!: CameraRouter;
   private config: ApplicationConfig;
-  private projectionSwitcher: CameraProjectionSwitcher;
   private state: ApplicationState;
 
   constructor(config: ApplicationConfig, container: HTMLElement) {
     this.config = config;
     this.sceneManager = new SceneManager(config.scene, container);
-    this.projectionSwitcher = new CameraProjectionSwitcher();
     this.state = new ApplicationState();
 
     // Initialize scaling system
@@ -140,12 +137,11 @@ export class Application {
     this.logDebugInfo();
   }
 
-  switchProjection(projection: string): void {
-    this.cameraRouter = this.projectionSwitcher.switchProjection(
-      this.cameraRouter,
-      projection,
-      this.config
-    );
+  switchProjection(projection: 'orthographic' | 'perspective'): void {
+    this.cameraRouter.switchProjection(projection, {
+      camera: this.config.camera,
+      zoom: this.config.zoom,
+    });
 
     this.setupCameraCallbacks();
     this.sceneManager.startRenderLoop(this.cameraRouter.camera);
