@@ -6,8 +6,8 @@ import {
 import { isGroupFactoryError } from '@kuumu/three-js-layouter/group-factory';
 import type { Group } from 'three';
 import * as THREE from 'three';
-import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
-import { buildExample, type ExampleParams, type ExampleType } from './build-example';
+import { ApplicationState } from './application-state';
+import { buildExample, type ExampleType } from './build-example';
 import {
   type CameraControllerConfig,
   CameraRouter,
@@ -33,16 +33,13 @@ export class Application {
   private cameraRouter!: CameraRouter;
   private config: ApplicationConfig;
   private projectionSwitcher: CameraProjectionSwitcher;
-  private currentExampleType: ExampleType = 'simple-container';
-  private currentHorizontalAlignment: 'center' | 'top' = 'center';
-  private currentVerticalAlignment: 'center' | 'left' = 'left';
-  private wireframeEnabled: boolean = false;
-  private currentHeightMode: 'fixed' | 'dynamic' = 'dynamic';
+  private state: ApplicationState;
 
   constructor(config: ApplicationConfig, container: HTMLElement) {
     this.config = config;
     this.sceneManager = new SceneManager(config.scene, container);
     this.projectionSwitcher = new CameraProjectionSwitcher();
+    this.state = new ApplicationState();
 
     // Initialize scaling system
     initializeScalingSystem();
@@ -71,20 +68,8 @@ export class Application {
     this.initializeCamera(options?.projection);
 
     // Set initial values if provided
-    if (options?.example) {
-      this.currentExampleType = options.example;
-    }
-    if (options?.horizontalAlignment) {
-      this.currentHorizontalAlignment = options.horizontalAlignment;
-    }
-    if (options?.verticalAlignment) {
-      this.currentVerticalAlignment = options.verticalAlignment;
-    }
-    if (options?.wireframe !== undefined) {
-      await this.switchWireframe(options.wireframe);
-    }
-    if (options?.heightMode) {
-      this.currentHeightMode = options.heightMode;
+    if (options) {
+      this.state.updateFromOptions(options);
     }
 
     // Load initial example
@@ -138,19 +123,19 @@ export class Application {
   }
 
   async switchExample(exampleType: ExampleType): Promise<void> {
-    this.currentExampleType = exampleType;
+    this.state.exampleType = exampleType;
     await this.loadCurrentExample();
     this.logDebugInfo();
   }
 
   async switchHorizontalAlignment(horizontalAlignment: 'center' | 'top'): Promise<void> {
-    this.currentHorizontalAlignment = horizontalAlignment;
+    this.state.horizontalAlignment = horizontalAlignment;
     await this.loadCurrentExample();
     this.logDebugInfo();
   }
 
   async switchVerticalAlignment(verticalAlignment: 'center' | 'left'): Promise<void> {
-    this.currentVerticalAlignment = verticalAlignment;
+    this.state.verticalAlignment = verticalAlignment;
     await this.loadCurrentExample();
     this.logDebugInfo();
   }
@@ -171,13 +156,13 @@ export class Application {
   }
 
   async switchWireframe(enabled: boolean): Promise<void> {
-    this.wireframeEnabled = enabled;
+    this.state.wireframeEnabled = enabled;
     await this.loadCurrentExample();
   }
 
   async switchHeightMode(heightMode: 'fixed' | 'dynamic'): Promise<void> {
     console.log(`[APP] Switching height mode to: ${heightMode}`);
-    this.currentHeightMode = heightMode;
+    this.state.heightMode = heightMode;
     await this.loadCurrentExample();
   }
 
@@ -208,7 +193,7 @@ export class Application {
     this.sceneManager.clearScene();
 
     try {
-      const params = this.createExampleParams(font);
+      const params = this.state.createExampleParams(font);
       const groupResult = buildExample(params);
 
       if (isGroupFactoryError(groupResult)) {
@@ -222,33 +207,8 @@ export class Application {
     }
   }
 
-  private createExampleParams(font: Font): ExampleParams {
-    const baseParams = {
-      font,
-      wireframe: this.wireframeEnabled,
-      heightMode: this.currentHeightMode,
-    };
-
-    switch (this.currentExampleType) {
-      case 'simple-container':
-        return { type: 'simple-container', ...baseParams };
-      case 'simple-horizontal':
-        return {
-          type: 'simple-horizontal',
-          ...baseParams,
-          alignment: this.currentHorizontalAlignment,
-        };
-      case 'simple-vertical':
-        return {
-          type: 'simple-vertical',
-          ...baseParams,
-          verticalAlignment: this.currentVerticalAlignment,
-        };
-    }
-  }
-
   private logDebugInfo(): void {
-    console.log('Current example:', this.currentExampleType);
+    console.log('Current example:', this.state.exampleType);
     console.log('Scene objects:', this.sceneManager.scene.children.length);
   }
 
