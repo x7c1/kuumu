@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { CameraEventHandler } from './camera-event-handler';
 import { CameraReset } from './camera-reset';
 import { MouseMovementHandler, type MovementHandlers } from './mouse-movement-handler';
-import { ScreenCenterCalculator } from './screen-center-calculator';
+import { calculateScreenCenterWorld } from './screen-center-calculator';
 import { SphericalCoordinates } from './spherical-coordinates';
 import type { ZoomConfig } from './zoom-strategy';
 
@@ -109,7 +109,7 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
   }
 
   protected updateScreenCenterWorld(): void {
-    this.screenCenterWorld.copy(ScreenCenterCalculator.calculateScreenCenterWorld(this.camera));
+    this.screenCenterWorld.copy(calculateScreenCenterWorld(this.camera));
     this.sphericalCoords?.updateScreenCenter(this.screenCenterWorld);
   }
 

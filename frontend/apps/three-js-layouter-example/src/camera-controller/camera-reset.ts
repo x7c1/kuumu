@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { CameraConstants } from './camera-constants';
-import { ScreenCenterCalculator } from './screen-center-calculator';
+import { calculateScreenCenterWorld } from './screen-center-calculator';
 
 interface Position {
   x: number;
@@ -20,7 +20,7 @@ export class CameraReset {
   ) {}
 
   isLookingAtOrigin(): boolean {
-    const screenCenter = ScreenCenterCalculator.calculateScreenCenterWorld(this.camera);
+    const screenCenter = calculateScreenCenterWorld(this.camera);
     const distanceToOrigin = screenCenter.length();
     return distanceToOrigin < CameraConstants.TOLERANCE;
   }
@@ -31,7 +31,7 @@ export class CameraReset {
     const currentDirection = new THREE.Vector3();
     this.camera.getWorldDirection(currentDirection);
 
-    const screenCenter = ScreenCenterCalculator.calculateScreenCenterWorld(this.camera);
+    const screenCenter = calculateScreenCenterWorld(this.camera);
     const currentDistance = this.camera.position.distanceTo(screenCenter);
 
     // Set new camera position to look at origin from same angle and distance

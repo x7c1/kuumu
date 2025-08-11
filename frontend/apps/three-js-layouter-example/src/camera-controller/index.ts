@@ -5,6 +5,6 @@ export { type CameraControllerConfig, CameraRouter } from './camera-router';
 export { MouseMovementHandler, type MovementHandlers } from './mouse-movement-handler';
 export type { OrthographicCameraConfig } from './orthographic-camera-controller';
 export type { PerspectiveCameraConfig } from './perspective-camera-controller';
-export { ScreenCenterCalculator } from './screen-center-calculator';
+export { calculateScreenCenterWorld } from './screen-center-calculator';
 export { SphericalCoordinates } from './spherical-coordinates';
 export type { ZoomConfig } from './zoom-strategy';
