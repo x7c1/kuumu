@@ -1,4 +1,5 @@
 import { type ExampleType, isValidExampleType } from './build-example';
+import type { HeightMode } from './models';
 
 export interface DebugPanelConfig {
   onExampleChange: (exampleType: ExampleType) => void;
@@ -6,7 +7,7 @@ export interface DebugPanelConfig {
   onVerticalAlignmentChange?: (verticalAlignment: string) => void;
   onProjectionChange?: (projection: string) => void;
   onWireframeChange?: (wireframe: boolean) => void;
-  onHeightModeChange?: (heightMode: 'fixed' | 'dynamic') => void;
+  onHeightModeChange?: (heightMode: HeightMode) => void;
   onThemeChange?: (theme: 'dark' | 'light') => void;
   onAxisHelperChange?: (show: boolean) => void;
 }
@@ -14,7 +15,8 @@ export interface DebugPanelConfig {
 export class DebugPanel {
   private static readonly STORAGE_KEY = 'three-js-layouter-example-selected';
   private static readonly ALIGNMENT_STORAGE_KEY = 'three-js-layouter-alignment-selected';
-  private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY = 'three-js-layouter-vertical-alignment-selected';
+  private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY =
+    'three-js-layouter-vertical-alignment-selected';
   private static readonly PROJECTION_STORAGE_KEY = 'three-js-layouter-projection-selected';
   private static readonly WIREFRAME_STORAGE_KEY = 'three-js-layouter-wireframe-enabled';
   private static readonly HEIGHT_MODE_STORAGE_KEY = 'three-js-layouter-height-mode-selected';
@@ -82,7 +84,7 @@ export class DebugPanel {
     return saved === 'true';
   }
 
-  getSavedHeightMode(): 'fixed' | 'dynamic' {
+  getSavedHeightMode(): HeightMode {
     const saved = localStorage.getItem(DebugPanel.HEIGHT_MODE_STORAGE_KEY);
     return saved === 'fixed' || saved === 'dynamic' ? saved : 'dynamic';
   }
@@ -106,7 +108,9 @@ export class DebugPanel {
       this.updateChildOptionsVisibility(savedExample);
     } else {
       // Default case - check which example is currently selected
-      const checkedExample = document.querySelector('input[name="example"]:checked') as HTMLInputElement;
+      const checkedExample = document.querySelector(
+        'input[name="example"]:checked'
+      ) as HTMLInputElement;
       if (checkedExample) {
         this.updateChildOptionsVisibility(checkedExample.value);
       }
@@ -161,7 +165,7 @@ export class DebugPanel {
     localStorage.setItem(DebugPanel.WIREFRAME_STORAGE_KEY, wireframe.toString());
   }
 
-  private saveCurrentHeightMode(heightMode: 'fixed' | 'dynamic'): void {
+  private saveCurrentHeightMode(heightMode: HeightMode): void {
     localStorage.setItem(DebugPanel.HEIGHT_MODE_STORAGE_KEY, heightMode);
   }
 
@@ -276,7 +280,7 @@ export class DebugPanel {
     this.wireframeCheckbox.checked = wireframe;
   }
 
-  setCurrentHeightMode(heightMode: 'fixed' | 'dynamic'): void {
+  setCurrentHeightMode(heightMode: HeightMode): void {
     this.heightModeButtons.forEach((radio) => {
       radio.checked = radio.value === heightMode;
     });
@@ -303,8 +307,7 @@ export class DebugPanel {
     }
 
     if (verticalAlignmentOptions) {
-      verticalAlignmentOptions.style.display =
-        exampleType === 'simple-vertical' ? 'block' : 'none';
+      verticalAlignmentOptions.style.display = exampleType === 'simple-vertical' ? 'block' : 'none';
     }
   }
 

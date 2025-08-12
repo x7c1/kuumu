@@ -1,0 +1,32 @@
+export const CameraConstants = {
+  // Rotation constraints
+  ROTATION_SENSITIVITY: 0.005,
+  MAX_THETA: Math.PI * 0.95,
+  MIN_THETA: Math.PI * 0.05,
+
+  // Movement sensitivity
+  DEPTH_SENSITIVITY: 0.02,
+  MIN_CAMERA_DISTANCE: 0.1,
+
+  // Reset functionality
+  DOUBLE_CLICK_THRESHOLD: 400,
+  TOLERANCE: 0.1,
+
+  // Clipping planes
+  ORTHOGRAPHIC_NEAR: 0.1,
+  ORTHOGRAPHIC_FAR: 100,
+  PERSPECTIVE_MIN_NEAR: 0.001,
+  PERSPECTIVE_NEAR_FACTOR: 0.01,
+  PERSPECTIVE_FAR_MIN: 1000,
+  PERSPECTIVE_FAR_FACTOR: 10,
+
+  // Screen center calculation
+  PARALLEL_THRESHOLD: 0.01,
+  DEFAULT_DISTANCE: 50,
+
+  // Sensitivity fallbacks
+  FALLBACK_SENSITIVITY_X: 0.01,
+  FALLBACK_SENSITIVITY_Y: 0.01,
+  SENSITIVITY_MIN: 0,
+  SENSITIVITY_MAX: 1,
+} as const;

@@ -107,7 +107,7 @@ export class DevLogger {
           logEntry: logEntry,
         }),
       });
-    } catch (err) {
+    } catch (_err) {
       // Silently fail to avoid infinite loops
     }
   }

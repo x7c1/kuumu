@@ -98,7 +98,7 @@ export const logger = DevLogger.getInstance();`;
             transformedCode.slice(insertPos);
         } else {
           // If no imports found, add at the beginning
-          transformedCode = `import { logger } from './logger';\n` + transformedCode;
+          transformedCode = `import { logger } from './logger';\n${transformedCode}`;
         }
       }
 

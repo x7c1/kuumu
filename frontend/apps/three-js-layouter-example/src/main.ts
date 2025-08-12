@@ -3,6 +3,7 @@ import { getScalingSystem, getUnitSystem } from '@kuumu/layouter/scaling';
 import { Application } from './application';
 import { type ExampleType, isValidExampleType } from './build-example';
 import { DebugPanel } from './debug-panel';
+import type { HeightMode, HorizontalAlignment, ProjectionType, VerticalAlignment } from './models';
 
 // Initialize DevLogger for AI analysis
 DevLogger.initialize({
@@ -28,6 +29,7 @@ const config = {
     near: 0.01,
     far: 200,
     position: { x: 0, y: 0, z: 50 },
+    size: 50, // Default orthographic size
   },
   zoom: {
     // Maximum zoom in (smaller number = more zoomed in)
@@ -94,18 +96,18 @@ const debugPanel = new DebugPanel({
     await app.switchExample(exampleType);
   },
   onAlignmentChange: async (alignment: string) => {
-    await app.switchHorizontalAlignment(alignment as 'center' | 'top');
+    await app.switchHorizontalAlignment(alignment as HorizontalAlignment);
   },
   onVerticalAlignmentChange: async (verticalAlignment: string) => {
-    await app.switchVerticalAlignment(verticalAlignment as 'center' | 'left');
+    await app.switchVerticalAlignment(verticalAlignment as VerticalAlignment);
   },
   onProjectionChange: (projection: string) => {
-    app.switchProjection(projection);
+    app.switchProjection(projection as ProjectionType);
   },
   onWireframeChange: async (wireframe: boolean) => {
     await app.switchWireframe(wireframe);
   },
-  onHeightModeChange: async (heightMode: 'fixed' | 'dynamic') => {
+  onHeightModeChange: async (heightMode: HeightMode) => {
     await app.switchHeightMode(heightMode);
   },
   onThemeChange: (theme: 'dark' | 'light') => {
@@ -131,9 +133,15 @@ const savedAxisHelper = debugPanel.getSavedAxisHelper();
 try {
   await app.initialize({
     example: isValidExampleType(savedExample) ? savedExample : undefined,
-    horizontalAlignment: savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
-    verticalAlignment: savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left' ? savedVerticalAlignment : undefined,
-    projection: savedProjection || undefined,
+    horizontalAlignment:
+      savedAlignment === 'center' || savedAlignment === 'top'
+        ? (savedAlignment as HorizontalAlignment)
+        : undefined,
+    verticalAlignment:
+      savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left'
+        ? (savedVerticalAlignment as VerticalAlignment)
+        : undefined,
+    projection: (savedProjection as ProjectionType) || undefined,
     wireframe: savedWireframe,
     heightMode: savedHeightMode,
   });
