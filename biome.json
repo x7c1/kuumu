@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["frontend/**/*.ts", "frontend/**/*.tsx", "scripts/**/*.ts"],
+    "includes": ["frontend/**/*.ts", "frontend/**/*.tsx", "scripts/**/*.ts", ".claude/*.cjs"],
     "ignoreUnknown": true
   },
   "formatter": {
