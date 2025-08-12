@@ -19,6 +19,7 @@ import {
 } from '@kuumu/three-js-layouter/group-factory';
 import type { Group } from 'three';
 import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
+import type { HeightMode, HorizontalAlignment, VerticalAlignment } from './models';
 
 const EXAMPLE_TYPES = ['simple-container', 'simple-horizontal', 'simple-vertical'] as const;
 
@@ -32,23 +33,23 @@ type SimpleContainerParams = {
   type: 'simple-container';
   font: Font;
   wireframe?: boolean;
-  heightMode?: 'fixed' | 'dynamic';
+  heightMode?: HeightMode;
 };
 
 type SimpleHorizontalParams = {
   type: 'simple-horizontal';
   font: Font;
-  alignment: 'center' | 'top';
+  alignment: HorizontalAlignment;
   wireframe?: boolean;
-  heightMode?: 'fixed' | 'dynamic';
+  heightMode?: HeightMode;
 };
 
 type SimpleVerticalParams = {
   type: 'simple-vertical';
   font: Font;
-  verticalAlignment: 'center' | 'left';
+  verticalAlignment: VerticalAlignment;
   wireframe?: boolean;
-  heightMode?: 'fixed' | 'dynamic';
+  heightMode?: HeightMode;
 };
 
 export type ExampleParams = SimpleContainerParams | SimpleHorizontalParams | SimpleVerticalParams;

@@ -1,4 +1,5 @@
 import { type ExampleType, isValidExampleType } from './build-example';
+import type { HeightMode } from './models';
 
 export interface DebugPanelConfig {
   onExampleChange: (exampleType: ExampleType) => void;
@@ -6,7 +7,7 @@ export interface DebugPanelConfig {
   onVerticalAlignmentChange?: (verticalAlignment: string) => void;
   onProjectionChange?: (projection: string) => void;
   onWireframeChange?: (wireframe: boolean) => void;
-  onHeightModeChange?: (heightMode: 'fixed' | 'dynamic') => void;
+  onHeightModeChange?: (heightMode: HeightMode) => void;
   onThemeChange?: (theme: 'dark' | 'light') => void;
   onAxisHelperChange?: (show: boolean) => void;
 }
@@ -83,7 +84,7 @@ export class DebugPanel {
     return saved === 'true';
   }
 
-  getSavedHeightMode(): 'fixed' | 'dynamic' {
+  getSavedHeightMode(): HeightMode {
     const saved = localStorage.getItem(DebugPanel.HEIGHT_MODE_STORAGE_KEY);
     return saved === 'fixed' || saved === 'dynamic' ? saved : 'dynamic';
   }
@@ -164,7 +165,7 @@ export class DebugPanel {
     localStorage.setItem(DebugPanel.WIREFRAME_STORAGE_KEY, wireframe.toString());
   }
 
-  private saveCurrentHeightMode(heightMode: 'fixed' | 'dynamic'): void {
+  private saveCurrentHeightMode(heightMode: HeightMode): void {
     localStorage.setItem(DebugPanel.HEIGHT_MODE_STORAGE_KEY, heightMode);
   }
 
@@ -279,7 +280,7 @@ export class DebugPanel {
     this.wireframeCheckbox.checked = wireframe;
   }
 
-  setCurrentHeightMode(heightMode: 'fixed' | 'dynamic'): void {
+  setCurrentHeightMode(heightMode: HeightMode): void {
     this.heightModeButtons.forEach((radio) => {
       radio.checked = radio.value === heightMode;
     });

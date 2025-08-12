@@ -3,6 +3,7 @@ import { getScalingSystem, getUnitSystem } from '@kuumu/layouter/scaling';
 import { Application } from './application';
 import { type ExampleType, isValidExampleType } from './build-example';
 import { DebugPanel } from './debug-panel';
+import type { HeightMode, HorizontalAlignment, ProjectionType, VerticalAlignment } from './models';
 
 // Initialize DevLogger for AI analysis
 DevLogger.initialize({
@@ -95,18 +96,18 @@ const debugPanel = new DebugPanel({
     await app.switchExample(exampleType);
   },
   onAlignmentChange: async (alignment: string) => {
-    await app.switchHorizontalAlignment(alignment as 'center' | 'top');
+    await app.switchHorizontalAlignment(alignment as HorizontalAlignment);
   },
   onVerticalAlignmentChange: async (verticalAlignment: string) => {
-    await app.switchVerticalAlignment(verticalAlignment as 'center' | 'left');
+    await app.switchVerticalAlignment(verticalAlignment as VerticalAlignment);
   },
   onProjectionChange: (projection: string) => {
-    app.switchProjection(projection as 'orthographic' | 'perspective');
+    app.switchProjection(projection as ProjectionType);
   },
   onWireframeChange: async (wireframe: boolean) => {
     await app.switchWireframe(wireframe);
   },
-  onHeightModeChange: async (heightMode: 'fixed' | 'dynamic') => {
+  onHeightModeChange: async (heightMode: HeightMode) => {
     await app.switchHeightMode(heightMode);
   },
   onThemeChange: (theme: 'dark' | 'light') => {
@@ -133,10 +134,12 @@ try {
   await app.initialize({
     example: isValidExampleType(savedExample) ? savedExample : undefined,
     horizontalAlignment:
-      savedAlignment === 'center' || savedAlignment === 'top' ? savedAlignment : undefined,
+      savedAlignment === 'center' || savedAlignment === 'top'
+        ? (savedAlignment as HorizontalAlignment)
+        : undefined,
     verticalAlignment:
       savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left'
-        ? savedVerticalAlignment
+        ? (savedVerticalAlignment as VerticalAlignment)
         : undefined,
     projection: savedProjection || undefined,
     wireframe: savedWireframe,

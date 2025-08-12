@@ -9,6 +9,7 @@ import type { ExampleType } from './build-example';
 import { type CameraControllerConfig, CameraRouter, type ZoomConfig } from './camera-controller';
 import { ExampleLoader } from './example-loader';
 import { loadFont } from './load-font';
+import type { HeightMode, HorizontalAlignment, ProjectionType, VerticalAlignment } from './models';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
 export interface ApplicationConfig {
@@ -42,11 +43,11 @@ export class Application {
 
   async initialize(options?: {
     example?: ExampleType;
-    horizontalAlignment?: 'center' | 'top';
-    verticalAlignment?: 'center' | 'left';
+    horizontalAlignment?: HorizontalAlignment;
+    verticalAlignment?: VerticalAlignment;
     projection?: string;
     wireframe?: boolean;
-    heightMode?: 'fixed' | 'dynamic';
+    heightMode?: HeightMode;
   }): Promise<void> {
     const font = await loadFont();
     if (!font) {
@@ -83,19 +84,19 @@ export class Application {
     this.logDebugInfo();
   }
 
-  async switchHorizontalAlignment(horizontalAlignment: 'center' | 'top'): Promise<void> {
+  async switchHorizontalAlignment(horizontalAlignment: HorizontalAlignment): Promise<void> {
     this.state.horizontalAlignment = horizontalAlignment;
     await this.exampleLoader.reload();
     this.logDebugInfo();
   }
 
-  async switchVerticalAlignment(verticalAlignment: 'center' | 'left'): Promise<void> {
+  async switchVerticalAlignment(verticalAlignment: VerticalAlignment): Promise<void> {
     this.state.verticalAlignment = verticalAlignment;
     await this.exampleLoader.reload();
     this.logDebugInfo();
   }
 
-  switchProjection(projection: 'orthographic' | 'perspective'): void {
+  switchProjection(projection: ProjectionType): void {
     this.cameraRouter.switchProjection(projection, {
       camera: this.config.camera,
       zoom: this.config.zoom,
@@ -114,7 +115,7 @@ export class Application {
     await this.exampleLoader.reload();
   }
 
-  async switchHeightMode(heightMode: 'fixed' | 'dynamic'): Promise<void> {
+  async switchHeightMode(heightMode: HeightMode): Promise<void> {
     console.log(`[APP] Switching height mode to: ${heightMode}`);
     this.state.heightMode = heightMode;
     await this.exampleLoader.reload();

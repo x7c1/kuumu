@@ -1,5 +1,6 @@
 import { getScalingSystem } from '@kuumu/layouter/scaling';
 import * as THREE from 'three';
+import type { ProjectionType } from '../models';
 import {
   type OrthographicCameraConfig,
   OrthographicCameraController,
@@ -254,7 +255,7 @@ export class CameraRouter {
   }
 
   switchProjection(
-    projection: 'orthographic' | 'perspective',
+    projection: ProjectionType,
     config: { camera: CameraControllerConfig; zoom: ZoomConfig }
   ): void {
     console.log(`[CAMERA_ROUTER] Switching to ${projection} projection`);

@@ -1,12 +1,13 @@
 import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import type { ExampleParams, ExampleType } from './build-example';
+import type { HeightMode, HorizontalAlignment, VerticalAlignment } from './models';
 
 export class ApplicationState {
   exampleType: ExampleType = 'simple-container';
-  horizontalAlignment: 'center' | 'top' = 'center';
-  verticalAlignment: 'center' | 'left' = 'left';
+  horizontalAlignment: HorizontalAlignment = 'center';
+  verticalAlignment: VerticalAlignment = 'left';
   wireframeEnabled: boolean = false;
-  heightMode: 'fixed' | 'dynamic' = 'dynamic';
+  heightMode: HeightMode = 'dynamic';
 
   createExampleParams(font: Font): ExampleParams {
     const baseParams = {
@@ -35,10 +36,10 @@ export class ApplicationState {
 
   updateFromOptions(options: {
     example?: ExampleType;
-    horizontalAlignment?: 'center' | 'top';
-    verticalAlignment?: 'center' | 'left';
+    horizontalAlignment?: HorizontalAlignment;
+    verticalAlignment?: VerticalAlignment;
     wireframe?: boolean;
-    heightMode?: 'fixed' | 'dynamic';
+    heightMode?: HeightMode;
   }): void {
     if (options.example) {
       this.exampleType = options.example;
