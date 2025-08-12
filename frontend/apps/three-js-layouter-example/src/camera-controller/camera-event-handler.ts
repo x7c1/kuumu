@@ -1,9 +1,11 @@
+import type { Coordinate } from '../models';
+
 export class CameraEventHandler {
   private isDragging = false;
   private dragStartMousePosition = { x: 0, y: 0 };
   private rotationStartMousePosition = { x: 0, y: 0 };
   private depthStartMousePosition = { x: 0, y: 0 };
-  private dragStartCameraPosition = { x: 0, y: 0, z: 0 };
+  private dragStartCameraPosition: Coordinate = { x: 0, y: 0, z: 0 };
   private dragStartCameraRotation = { x: 0, y: 0 };
   private renderCallback?: () => void;
   private continuousRenderCallback?: (enabled: boolean) => void;
@@ -32,7 +34,7 @@ export class CameraEventHandler {
     private mouseMoveHandler: (
       deltaX: number,
       deltaY: number,
-      startPos: { x: number; y: number; z: number },
+      startPos: Coordinate,
       startRotation: { x: number; y: number },
       isShiftPressed: boolean,
       isCtrlPressed: boolean
@@ -260,7 +262,7 @@ export class CameraEventHandler {
     this.dragStartCameraRotation = { x, y };
   }
 
-  getDragStartCameraPosition(): { x: number; y: number; z: number } {
+  getDragStartCameraPosition(): Coordinate {
     return this.dragStartCameraPosition;
   }
 

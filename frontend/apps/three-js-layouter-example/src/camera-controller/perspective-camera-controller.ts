@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { Coordinate } from '../models';
 import { CameraConstants } from './camera-constants';
 import { type CameraConfig, CameraController } from './camera-controller';
 import { PerspectiveZoomStrategy, type ZoomConfig } from './zoom-strategy';
@@ -87,11 +88,7 @@ export class PerspectiveCameraController extends CameraController<
     this.camera.updateProjectionMatrix();
   }
 
-  protected handlePlanarMovement(
-    deltaX: number,
-    deltaY: number,
-    startPos: { x: number; y: number; z: number }
-  ): void {
+  protected handlePlanarMovement(deltaX: number, deltaY: number, startPos: Coordinate): void {
     // Calculate proper sensitivity for perspective camera using cached values
     const distance = this.camera.position.z;
     const height = 2 * this.cachedFovTan * distance;
@@ -108,10 +105,7 @@ export class PerspectiveCameraController extends CameraController<
     this.updateScreenCenterWorld();
   }
 
-  protected handleDepthMovement(
-    deltaY: number,
-    startPos: { x: number; y: number; z: number }
-  ): void {
+  protected handleDepthMovement(deltaY: number, startPos: Coordinate): void {
     const newZ = Math.max(
       CameraConstants.MIN_CAMERA_DISTANCE,
       startPos.z + deltaY * CameraConstants.DEPTH_SENSITIVITY

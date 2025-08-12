@@ -1,12 +1,9 @@
+import type { Coordinate } from '../models';
 import { CameraConstants } from './camera-constants';
 
 export interface MovementHandlers {
-  handlePlanar: (
-    deltaX: number,
-    deltaY: number,
-    startPos: { x: number; y: number; z: number }
-  ) => void;
-  handleDepth: (deltaY: number, startPos: { x: number; y: number; z: number }) => void;
+  handlePlanar: (deltaX: number, deltaY: number, startPos: Coordinate) => void;
+  handleDepth: (deltaY: number, startPos: Coordinate) => void;
   handleRotation: (deltaX: number, deltaY: number, startRotation: { x: number; y: number }) => void;
 }
 
@@ -16,7 +13,7 @@ export class MouseMovementHandler {
   handleMouseMove(
     deltaX: number,
     deltaY: number,
-    startPos: { x: number; y: number; z: number },
+    startPos: Coordinate,
     startRotation: { x: number; y: number },
     isShiftPressed: boolean,
     isCtrlPressed: boolean

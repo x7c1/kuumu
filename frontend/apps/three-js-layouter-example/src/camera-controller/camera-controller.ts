@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { Coordinate } from '../models';
 import { CameraEventHandler } from './camera-event-handler';
 import { CameraReset } from './camera-reset';
 import { MouseMovementHandler, type MovementHandlers } from './mouse-movement-handler';
@@ -7,7 +8,7 @@ import { SphericalCoordinates } from './spherical-coordinates';
 import type { ZoomConfig } from './zoom-strategy';
 
 export interface CameraConfig {
-  position: { x: number; y: number; z: number };
+  position: Coordinate;
   aspect: number;
   near: number;
   far: number;
@@ -70,12 +71,9 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
   protected abstract handlePlanarMovement(
     deltaX: number,
     deltaY: number,
-    startPos: { x: number; y: number; z: number }
+    startPos: Coordinate
   ): void;
-  protected abstract handleDepthMovement(
-    deltaY: number,
-    startPos: { x: number; y: number; z: number }
-  ): void;
+  protected abstract handleDepthMovement(deltaY: number, startPos: Coordinate): void;
   protected abstract onResetFinalized(): void;
   protected abstract updateProjectionMatrix(): void;
 
@@ -141,7 +139,7 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
   protected handleMouseMove(
     deltaX: number,
     deltaY: number,
-    startPos: { x: number; y: number; z: number },
+    startPos: Coordinate,
     startRotation: { x: number; y: number },
     isShiftPressed: boolean,
     isCtrlPressed: boolean
