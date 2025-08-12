@@ -227,7 +227,7 @@ export class CameraEventHandler {
     this.mouseDownHandler(fakeEvent);
   }
 
-  private stopRotation(): void {
+  stopRotation(): void {
     this.isRotating = false;
     // Hide rotation center indicator when rotation stops
     this.hideRotationCenterCallback?.();

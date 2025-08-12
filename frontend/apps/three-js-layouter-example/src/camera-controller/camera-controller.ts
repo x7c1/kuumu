@@ -42,7 +42,8 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
     this.cameraReset = new CameraReset(
       this.camera,
       { position: this.initialConfig.position },
-      this.onResetFinalized.bind(this)
+      this.onResetFinalized.bind(this),
+      () => this.eventHandler.stopRotation()
     );
 
     // Initialize mouse movement handler

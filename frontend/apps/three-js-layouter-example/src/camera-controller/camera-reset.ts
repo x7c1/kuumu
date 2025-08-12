@@ -16,7 +16,8 @@ export class CameraReset {
   constructor(
     private camera: THREE.Camera,
     private initialConfig: CameraResetConfig,
-    private onReset?: () => void
+    private onReset: () => void,
+    private stopRotationCallback: () => void
   ) {}
 
   isLookingAtOrigin(): boolean {
@@ -54,6 +55,9 @@ export class CameraReset {
     // Reset rotation (look at origin)
     this.camera.lookAt(0, 0, 0);
 
+    // Stop any ongoing rotation to clear rotation state
+    this.stopRotationCallback();
+
     console.log('[CAMERA_RESET] Stage 2 complete: Full reset to initial state');
   }
 
@@ -71,8 +75,8 @@ export class CameraReset {
       this.resetToPanToOrigin();
     }
 
-    // Call finalization callback if provided
-    this.onReset?.();
+    // Call finalization callback
+    this.onReset();
 
     console.log('[CAMERA_RESET] Camera reset complete, new position:', this.camera.position);
   }
