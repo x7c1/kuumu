@@ -3,7 +3,6 @@ import {
   initializeScalingSystem,
   initializeUnitSystem,
 } from '@kuumu/layouter/scaling';
-import type * as THREE from 'three';
 import type { ExampleType } from './build-example';
 import { type CameraControllerConfig, CameraRouter, type ZoomConfig } from './camera-controller';
 import { ExampleLoader } from './example-loader';
@@ -42,7 +41,7 @@ export class Application {
     this.setupResizeListener();
   }
 
-  async initialize(options?: Partial<InitParams>): Promise<void> {
+  async initialize(options: Partial<InitParams>): Promise<void> {
     const font = await loadFont();
     if (!font) {
       throw new Error('Failed to load font');
@@ -55,10 +54,8 @@ export class Application {
       options?.projection
     );
 
-    // Set initial values if provided
-    if (options) {
-      this.state.updateFromOptions(options);
-    }
+    // Set initial values
+    this.state.updateFromOptions(options);
 
     // Load initial example
     await this.exampleLoader.reload();
@@ -120,32 +117,28 @@ export class Application {
     this.sceneManager.showAxisHelper(show);
   }
 
-  showRotationCenter(position: THREE.Vector3): void {
-    this.sceneManager.showRotationCenter(position, this.cameraRouter.camera);
-  }
-
-  hideRotationCenter(): void {
-    this.sceneManager.hideRotationCenter();
-  }
-
-  updateRotationCenterScale(): void {
-    this.sceneManager.updateRotationCenterScalePublic(this.cameraRouter.camera);
-  }
-
   private logDebugInfo(): void {
     console.log('Current example:', this.state.exampleType);
     console.log('Scene objects:', this.sceneManager.scene.children.length);
   }
 
   private setupCameraCallbacks(): void {
-    this.cameraRouter.setRenderCallback(() => this.sceneManager.requestRender());
-    this.cameraRouter.setContinuousRenderCallback((enabled) =>
-      this.sceneManager.setContinuousRender(enabled)
-    );
+    this.cameraRouter.setRenderCallback(() => {
+      this.sceneManager.requestRender();
+    });
+    this.cameraRouter.setContinuousRenderCallback((enabled) => {
+      this.sceneManager.setContinuousRender(enabled);
+    });
     this.cameraRouter.setRotationCenterCallback(
-      (position) => this.showRotationCenter(position),
-      () => this.hideRotationCenter(),
-      () => this.updateRotationCenterScale()
+      (position) => {
+        this.sceneManager.showRotationCenter(position, this.cameraRouter.camera);
+      },
+      () => {
+        this.sceneManager.hideRotationCenter();
+      },
+      () => {
+        this.sceneManager.updateRotationCenterScalePublic(this.cameraRouter.camera);
+      }
     );
   }
 
