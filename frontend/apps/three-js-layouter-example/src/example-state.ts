@@ -1,8 +1,9 @@
 import type { Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import type { ExampleParams, ExampleType } from './build-example';
 import type { HeightMode, HorizontalAlignment, VerticalAlignment } from './models';
+import type { InitParams } from './models/init-params';
 
-export class ApplicationState {
+export class ExampleState {
   exampleType: ExampleType = 'simple-container';
   horizontalAlignment: HorizontalAlignment = 'center';
   verticalAlignment: VerticalAlignment = 'left';
@@ -34,13 +35,7 @@ export class ApplicationState {
     }
   }
 
-  updateFromOptions(options: {
-    example?: ExampleType;
-    horizontalAlignment?: HorizontalAlignment;
-    verticalAlignment?: VerticalAlignment;
-    wireframe?: boolean;
-    heightMode?: HeightMode;
-  }): void {
+  updateFromOptions(options: Partial<InitParams>): void {
     if (options.example) {
       this.exampleType = options.example;
     }

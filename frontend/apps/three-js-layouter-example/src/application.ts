@@ -4,12 +4,13 @@ import {
   initializeUnitSystem,
 } from '@kuumu/layouter/scaling';
 import type * as THREE from 'three';
-import { ApplicationState } from './application-state';
 import type { ExampleType } from './build-example';
 import { type CameraControllerConfig, CameraRouter, type ZoomConfig } from './camera-controller';
 import { ExampleLoader } from './example-loader';
+import { ExampleState } from './example-state';
 import { loadFont } from './load-font';
 import type { HeightMode, HorizontalAlignment, ProjectionType, VerticalAlignment } from './models';
+import type { InitParams } from './models/init-params';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
 export interface ApplicationConfig {
@@ -22,13 +23,13 @@ export class Application {
   private sceneManager: SceneManager;
   private cameraRouter!: CameraRouter;
   private config: ApplicationConfig;
-  private state: ApplicationState;
+  private state: ExampleState;
   private exampleLoader: ExampleLoader;
 
   constructor(config: ApplicationConfig, container: HTMLElement) {
     this.config = config;
     this.sceneManager = new SceneManager(config.scene, container);
-    this.state = new ApplicationState();
+    this.state = new ExampleState();
     this.exampleLoader = new ExampleLoader(this.state, this.sceneManager);
 
     // Initialize scaling system
@@ -41,14 +42,7 @@ export class Application {
     this.setupResizeListener();
   }
 
-  async initialize(options?: {
-    example?: ExampleType;
-    horizontalAlignment?: HorizontalAlignment;
-    verticalAlignment?: VerticalAlignment;
-    projection?: string;
-    wireframe?: boolean;
-    heightMode?: HeightMode;
-  }): Promise<void> {
+  async initialize(options?: Partial<InitParams>): Promise<void> {
     const font = await loadFont();
     if (!font) {
       throw new Error('Failed to load font');

@@ -141,7 +141,7 @@ try {
       savedVerticalAlignment === 'center' || savedVerticalAlignment === 'left'
         ? (savedVerticalAlignment as VerticalAlignment)
         : undefined,
-    projection: savedProjection || undefined,
+    projection: (savedProjection as ProjectionType) || undefined,
     wireframe: savedWireframe,
     heightMode: savedHeightMode,
   });

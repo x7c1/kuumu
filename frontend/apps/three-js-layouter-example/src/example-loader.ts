@@ -1,14 +1,14 @@
 import { isGroupFactoryError } from '@kuumu/three-js-layouter/group-factory';
-import type { ApplicationState } from './application-state';
 import { buildExample } from './build-example';
+import type { ExampleState } from './example-state';
 import { loadFont } from './load-font';
 import type { SceneManager } from './scene-manager';
 
 export class ExampleLoader {
-  private state: ApplicationState;
+  private state: ExampleState;
   private sceneManager: SceneManager;
 
-  constructor(state: ApplicationState, sceneManager: SceneManager) {
+  constructor(state: ExampleState, sceneManager: SceneManager) {
     this.state = state;
     this.sceneManager = sceneManager;
   }
