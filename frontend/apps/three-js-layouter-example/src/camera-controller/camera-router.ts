@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { getScalingSystem } from '@kuumu/layouter/scaling';
 import {
   type OrthographicCameraConfig,
   OrthographicCameraController,
@@ -29,6 +30,52 @@ type CameraControllerImplementation = OrthographicCameraController | Perspective
 
 export class CameraRouter {
   private implementation: CameraControllerImplementation;
+
+  // Base orthographic camera size constant
+  private static readonly BASE_ORTHOGRAPHIC_SIZE = 50;
+
+  static createWithProjectionPreference(
+    baseCameraConfig: Omit<CameraControllerConfig, 'fov' | 'size'>,
+    zoomConfig: ZoomConfig,
+    projection?: string
+  ): CameraRouter {
+    const scalingSystem = getScalingSystem();
+
+    // Use fixed, stable values to prevent accumulation of rounding errors
+    const STANDARD_ORTHOGRAPHIC_SIZE = this.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
+    const STANDARD_PERSPECTIVE_DISTANCE = 50;
+    const STANDARD_FOV = 50;
+
+    // Create base config without size or fov to avoid conflicts
+    const baseConfig = {
+      aspect: baseCameraConfig.aspect,
+      near: baseCameraConfig.near,
+      far: baseCameraConfig.far,
+      position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
+    };
+
+    let cameraConfig: CameraControllerConfig;
+
+    if (projection === 'perspective') {
+      cameraConfig = {
+        ...baseConfig,
+        fov: STANDARD_FOV,
+      } as PerspectiveCameraConfig;
+      console.log('[CAMERA_INIT] Initializing with perspective camera');
+    } else {
+      // Default to orthographic
+      cameraConfig = {
+        ...baseConfig,
+        size: STANDARD_ORTHOGRAPHIC_SIZE,
+      } as OrthographicCameraConfig;
+      console.log('[CAMERA_INIT] Initializing with orthographic camera');
+    }
+
+    console.log('[CAMERA_INIT] Final config:', cameraConfig);
+    const router = new CameraRouter(cameraConfig, zoomConfig);
+    router.setupEventListeners();
+    return router;
+  }
 
   constructor(cameraConfig: CameraControllerConfig, zoomConfig: ZoomConfig) {
     console.log('[CAMERA_ROUTER] Constructor called with config:', cameraConfig);
@@ -185,6 +232,23 @@ export class CameraRouter {
     this.camera.lookAt(lookTarget);
 
     console.log('[CAMERA_ROUTER] Camera position and direction restored');
+  }
+
+  updateCameraSize(): void {
+    const scalingSystem = getScalingSystem();
+    const newOrthographicSize = CameraRouter.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
+
+    // Update camera size if using orthographic projection
+    if (this.camera.type === 'OrthographicCamera') {
+      const orthoCamera = this.camera as THREE.OrthographicCamera;
+      const aspect = orthoCamera.right / orthoCamera.top;
+
+      orthoCamera.left = (-newOrthographicSize * aspect) / 2;
+      orthoCamera.right = (newOrthographicSize * aspect) / 2;
+      orthoCamera.top = newOrthographicSize / 2;
+      orthoCamera.bottom = -newOrthographicSize / 2;
+      orthoCamera.updateProjectionMatrix();
+    }
   }
 
   switchProjection(

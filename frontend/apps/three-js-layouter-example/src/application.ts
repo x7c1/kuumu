@@ -10,8 +10,6 @@ import { buildExample, type ExampleType } from './build-example';
 import {
   type CameraControllerConfig,
   CameraRouter,
-  type OrthographicCameraConfig,
-  type PerspectiveCameraConfig,
   type ZoomConfig,
 } from './camera-controller';
 import { loadFont } from './load-font';
@@ -23,8 +21,6 @@ export interface ApplicationConfig {
   zoom: ZoomConfig;
 }
 
-// Base orthographic camera size constant
-const BASE_ORTHOGRAPHIC_SIZE = 50;
 
 export class Application {
   private sceneManager: SceneManager;
@@ -61,7 +57,11 @@ export class Application {
     }
 
     // Initialize camera with projection preference
-    this.initializeCamera(options?.projection);
+    this.cameraRouter = CameraRouter.createWithProjectionPreference(
+      this.config.camera,
+      this.config.zoom,
+      options?.projection
+    );
 
     // Set initial values if provided
     if (options) {
@@ -80,43 +80,6 @@ export class Application {
     this.logDebugInfo();
   }
 
-  private initializeCamera(projection?: string): void {
-    const scalingSystem = getScalingSystem();
-
-    // Use fixed, stable values to prevent accumulation of rounding errors
-    const STANDARD_ORTHOGRAPHIC_SIZE = BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
-    const STANDARD_PERSPECTIVE_DISTANCE = 50;
-    const STANDARD_FOV = 50;
-
-    // Create base config without size or fov to avoid conflicts
-    const baseConfig = {
-      aspect: this.config.camera.aspect,
-      near: this.config.camera.near,
-      far: this.config.camera.far,
-      position: { x: 0, y: 0, z: STANDARD_PERSPECTIVE_DISTANCE },
-    };
-
-    let cameraConfig: CameraControllerConfig;
-
-    if (projection === 'perspective') {
-      cameraConfig = {
-        ...baseConfig,
-        fov: STANDARD_FOV,
-      } as PerspectiveCameraConfig;
-      console.log('[CAMERA_INIT] Initializing with perspective camera');
-    } else {
-      // Default to orthographic
-      cameraConfig = {
-        ...baseConfig,
-        size: STANDARD_ORTHOGRAPHIC_SIZE,
-      } as OrthographicCameraConfig;
-      console.log('[CAMERA_INIT] Initializing with orthographic camera');
-    }
-
-    console.log('[CAMERA_INIT] Final config:', cameraConfig);
-    this.cameraRouter = new CameraRouter(cameraConfig, this.config.zoom);
-    this.cameraRouter.setupEventListeners();
-  }
 
   async switchExample(exampleType: ExampleType): Promise<void> {
     this.state.exampleType = exampleType;
@@ -230,7 +193,7 @@ export class Application {
 
       // Only update camera and reload if scale factor actually changed (DPI change)
       if (oldScaleFactor !== newScaleFactor) {
-        this.updateCameraSize();
+        this.cameraRouter.updateCameraSize();
         this.loadCurrentExample();
       }
     };
@@ -241,22 +204,6 @@ export class Application {
     this.resizeHandler = handleResize;
   }
 
-  private updateCameraSize(): void {
-    const scalingSystem = getScalingSystem();
-    const newOrthographicSize = BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
-
-    // Update camera size if using orthographic projection
-    if (this.cameraRouter.camera.type === 'OrthographicCamera') {
-      const orthoCamera = this.cameraRouter.camera as THREE.OrthographicCamera;
-      const aspect = orthoCamera.right / orthoCamera.top;
-
-      orthoCamera.left = (-newOrthographicSize * aspect) / 2;
-      orthoCamera.right = (newOrthographicSize * aspect) / 2;
-      orthoCamera.top = newOrthographicSize / 2;
-      orthoCamera.bottom = -newOrthographicSize / 2;
-      orthoCamera.updateProjectionMatrix();
-    }
-  }
 
   private forceInitialRender(): void {
     // Fix TextNode rendering issue by simulating actual mouse wheel events
