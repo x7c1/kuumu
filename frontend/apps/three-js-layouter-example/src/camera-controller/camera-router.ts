@@ -1,5 +1,5 @@
-import * as THREE from 'three';
 import { getScalingSystem } from '@kuumu/layouter/scaling';
+import * as THREE from 'three';
 import {
   type OrthographicCameraConfig,
   OrthographicCameraController,
@@ -42,7 +42,8 @@ export class CameraRouter {
     const scalingSystem = getScalingSystem();
 
     // Use fixed, stable values to prevent accumulation of rounding errors
-    const STANDARD_ORTHOGRAPHIC_SIZE = this.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
+    const STANDARD_ORTHOGRAPHIC_SIZE =
+      CameraRouter.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
     const STANDARD_PERSPECTIVE_DISTANCE = 50;
     const STANDARD_FOV = 50;
 
@@ -236,7 +237,8 @@ export class CameraRouter {
 
   updateCameraSize(): void {
     const scalingSystem = getScalingSystem();
-    const newOrthographicSize = CameraRouter.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
+    const newOrthographicSize =
+      CameraRouter.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
 
     // Update camera size if using orthographic projection
     if (this.camera.type === 'OrthographicCamera') {

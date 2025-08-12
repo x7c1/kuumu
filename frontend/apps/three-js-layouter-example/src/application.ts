@@ -3,15 +3,11 @@ import {
   initializeScalingSystem,
   initializeUnitSystem,
 } from '@kuumu/layouter/scaling';
-import { isGroupFactoryError } from '@kuumu/three-js-layouter/group-factory';
 import type * as THREE from 'three';
 import { ApplicationState } from './application-state';
-import { buildExample, type ExampleType } from './build-example';
-import {
-  type CameraControllerConfig,
-  CameraRouter,
-  type ZoomConfig,
-} from './camera-controller';
+import type { ExampleType } from './build-example';
+import { type CameraControllerConfig, CameraRouter, type ZoomConfig } from './camera-controller';
+import { ExampleLoader } from './example-loader';
 import { loadFont } from './load-font';
 import { type SceneConfig, SceneManager } from './scene-manager';
 
@@ -21,17 +17,18 @@ export interface ApplicationConfig {
   zoom: ZoomConfig;
 }
 
-
 export class Application {
   private sceneManager: SceneManager;
   private cameraRouter!: CameraRouter;
   private config: ApplicationConfig;
   private state: ApplicationState;
+  private exampleLoader: ExampleLoader;
 
   constructor(config: ApplicationConfig, container: HTMLElement) {
     this.config = config;
     this.sceneManager = new SceneManager(config.scene, container);
     this.state = new ApplicationState();
+    this.exampleLoader = new ExampleLoader(this.state, this.sceneManager);
 
     // Initialize scaling system
     initializeScalingSystem();
@@ -69,7 +66,7 @@ export class Application {
     }
 
     // Load initial example
-    await this.loadCurrentExample();
+    await this.exampleLoader.reload();
 
     this.setupCameraCallbacks();
     this.sceneManager.startRenderLoop(this.cameraRouter.camera);
@@ -80,22 +77,21 @@ export class Application {
     this.logDebugInfo();
   }
 
-
   async switchExample(exampleType: ExampleType): Promise<void> {
     this.state.exampleType = exampleType;
-    await this.loadCurrentExample();
+    await this.exampleLoader.reload();
     this.logDebugInfo();
   }
 
   async switchHorizontalAlignment(horizontalAlignment: 'center' | 'top'): Promise<void> {
     this.state.horizontalAlignment = horizontalAlignment;
-    await this.loadCurrentExample();
+    await this.exampleLoader.reload();
     this.logDebugInfo();
   }
 
   async switchVerticalAlignment(verticalAlignment: 'center' | 'left'): Promise<void> {
     this.state.verticalAlignment = verticalAlignment;
-    await this.loadCurrentExample();
+    await this.exampleLoader.reload();
     this.logDebugInfo();
   }
 
@@ -115,13 +111,13 @@ export class Application {
 
   async switchWireframe(enabled: boolean): Promise<void> {
     this.state.wireframeEnabled = enabled;
-    await this.loadCurrentExample();
+    await this.exampleLoader.reload();
   }
 
   async switchHeightMode(heightMode: 'fixed' | 'dynamic'): Promise<void> {
     console.log(`[APP] Switching height mode to: ${heightMode}`);
     this.state.heightMode = heightMode;
-    await this.loadCurrentExample();
+    await this.exampleLoader.reload();
   }
 
   switchAxisHelper(show: boolean): void {
@@ -139,30 +135,6 @@ export class Application {
 
   updateRotationCenterScale(): void {
     this.sceneManager.updateRotationCenterScalePublic(this.cameraRouter.camera);
-  }
-
-  private async loadCurrentExample(): Promise<void> {
-    const font = await loadFont();
-    if (!font) {
-      console.error('Failed to load font');
-      return;
-    }
-
-    this.sceneManager.clearScene();
-
-    try {
-      const params = this.state.createExampleParams(font);
-      const groupResult = buildExample(params);
-
-      if (isGroupFactoryError(groupResult)) {
-        console.error('Failed to create node group:', groupResult);
-        return;
-      }
-
-      this.sceneManager.centerAndAddToScene(groupResult);
-    } catch (err) {
-      console.error('Error loading example:', err);
-    }
   }
 
   private logDebugInfo(): void {
@@ -194,7 +166,7 @@ export class Application {
       // Only update camera and reload if scale factor actually changed (DPI change)
       if (oldScaleFactor !== newScaleFactor) {
         this.cameraRouter.updateCameraSize();
-        this.loadCurrentExample();
+        this.exampleLoader.reload();
       }
     };
 
@@ -203,7 +175,6 @@ export class Application {
     // Store the handler for cleanup
     this.resizeHandler = handleResize;
   }
-
 
   private forceInitialRender(): void {
     // Fix TextNode rendering issue by simulating actual mouse wheel events
