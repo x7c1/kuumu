@@ -4,8 +4,7 @@ import {
   initializeUnitSystem,
 } from '@kuumu/layouter/scaling';
 import { isGroupFactoryError } from '@kuumu/three-js-layouter/group-factory';
-import type { Group } from 'three';
-import * as THREE from 'three';
+import type * as THREE from 'three';
 import { ApplicationState } from './application-state';
 import { buildExample, type ExampleType } from './build-example';
 import {
@@ -197,7 +196,7 @@ export class Application {
         return;
       }
 
-      this.centerAndAddToScene(groupResult);
+      this.sceneManager.centerAndAddToScene(groupResult);
     } catch (err) {
       console.error('Error loading example:', err);
     }
@@ -218,30 +217,6 @@ export class Application {
       () => this.hideRotationCenter(),
       () => this.updateRotationCenterScale()
     );
-  }
-
-  private centerAndAddToScene(group: Group): void {
-    const box = new THREE.Box3().setFromObject(group);
-    const center = box.getCenter(new THREE.Vector3());
-
-    console.log('[DEBUG] Object bounding box:', box);
-    console.log('[DEBUG] Object center before positioning:', center);
-
-    group.position.sub(center);
-
-    console.log('[DEBUG] Object position after centering:', group.position);
-    console.log('[DEBUG] Object children count:', group.children.length);
-
-    // Log first few children positions
-    group.children.forEach((child, index) => {
-      if (index < 3) {
-        console.log(`[DEBUG] Child ${index} position:`, child.position);
-        console.log(`[DEBUG] Child ${index} type:`, child.type);
-      }
-    });
-
-    this.sceneManager.scene.add(group);
-    this.sceneManager.requestRender();
   }
 
   private setupResizeListener(): void {
