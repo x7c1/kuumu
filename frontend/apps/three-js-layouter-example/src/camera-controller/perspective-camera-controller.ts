@@ -143,7 +143,7 @@ export class PerspectiveCameraController extends CameraController<
   }
 
   getCurrentDistance(): number {
-    return this.camera.position.z;
+    return this.camera.position.length();
   }
 
   protected updateProjectionMatrix(): void {

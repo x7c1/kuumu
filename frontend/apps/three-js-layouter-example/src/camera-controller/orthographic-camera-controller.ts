@@ -147,7 +147,8 @@ export class OrthographicCameraController extends CameraController<
   }
 
   getCurrentSize(): number {
-    return this.cachedSize;
+    // Get the actual size from the camera's current bounds
+    return this.camera.top - this.camera.bottom;
   }
 
   protected updateProjectionMatrix(): void {
