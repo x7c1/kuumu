@@ -15,8 +15,12 @@ export class PerspectiveCameraController extends CameraController<
   private readonly zoomStrategy: PerspectiveZoomStrategy;
   private cachedFovTan: number;
 
-  constructor(cameraConfig: PerspectiveCameraConfig, zoomConfig: ZoomConfig) {
-    super(cameraConfig, zoomConfig);
+  constructor(
+    cameraConfig: PerspectiveCameraConfig,
+    zoomConfig: ZoomConfig,
+    initialConfig: PerspectiveCameraConfig
+  ) {
+    super(cameraConfig, zoomConfig, initialConfig);
 
     const fovRadians = (this.camera.fov * Math.PI) / 180;
     this.cachedFovTan = Math.tan(fovRadians / 2);

@@ -17,8 +17,12 @@ export class OrthographicCameraController extends CameraController<
   private readonly zoomStrategy: OrthographicZoomStrategy;
   private cachedSize: number;
 
-  constructor(cameraConfig: OrthographicCameraConfig, zoomConfig: ZoomConfig) {
-    super(cameraConfig, zoomConfig);
+  constructor(
+    cameraConfig: OrthographicCameraConfig,
+    zoomConfig: ZoomConfig,
+    initialConfig: OrthographicCameraConfig
+  ) {
+    super(cameraConfig, zoomConfig, initialConfig);
     this.aspect = cameraConfig.aspect;
     this.cachedSize = cameraConfig.size;
     this.zoomStrategy = new OrthographicZoomStrategy(zoomConfig);

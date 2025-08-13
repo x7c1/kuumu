@@ -83,9 +83,13 @@ export class CameraRouter {
 
     // Handle Union type with type guards
     if (isOrthographicConfig(cameraConfig)) {
-      this.implementation = new OrthographicCameraController(cameraConfig, zoomConfig);
+      this.implementation = new OrthographicCameraController(
+        cameraConfig,
+        zoomConfig,
+        cameraConfig
+      );
     } else if (isPerspectiveConfig(cameraConfig)) {
-      this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig);
+      this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig, cameraConfig);
     } else {
       console.error(
         '[CAMERA_ROUTER] Invalid config - neither orthographic nor perspective:',
@@ -173,11 +177,13 @@ export class CameraRouter {
       } as PerspectiveCameraConfig;
     }
 
-    // Create new implementation
+    // Create new implementation with proper initial config
     if (isOrthographicConfig(newConfig)) {
-      this.implementation = new OrthographicCameraController(newConfig, config.zoom);
+      const initialConfig = this.createOrthographicInitialConfig();
+      this.implementation = new OrthographicCameraController(newConfig, config.zoom, initialConfig);
     } else if (isPerspectiveConfig(newConfig)) {
-      this.implementation = new PerspectiveCameraController(newConfig, config.zoom);
+      const initialConfig = this.createPerspectiveInitialConfig();
+      this.implementation = new PerspectiveCameraController(newConfig, config.zoom, initialConfig);
     } else {
       throw new Error('Invalid camera configuration during projection switch');
     }
@@ -187,49 +193,37 @@ export class CameraRouter {
 
     // Look at origin
     this.camera.lookAt(0, 0, 0);
-
-    // Restore the original initial config to preserve reset functionality
-    this.restoreOriginalInitialConfig(projection);
   }
 
-  private restoreOriginalInitialConfig(targetProjection: ProjectionType): void {
-    // Create the appropriate config type based on target projection
-    if (targetProjection === 'orthographic') {
-      if (isPerspectiveConfig(this.originalInitialConfig)) {
-        // Converting from perspective original to orthographic
-        const orthographicConfig: OrthographicCameraConfig = {
-          aspect: this.originalInitialConfig.aspect,
-          near: this.originalInitialConfig.near,
-          far: this.originalInitialConfig.far,
-          position: this.originalInitialConfig.position,
-          size: 50, // Use standard size
-        };
-        (this.implementation as OrthographicCameraController).updateInitialConfig(
-          orthographicConfig
-        );
-      } else {
-        // Already orthographic
-        (this.implementation as OrthographicCameraController).updateInitialConfig(
-          this.originalInitialConfig as OrthographicCameraConfig
-        );
-      }
+  private createOrthographicInitialConfig(): OrthographicCameraConfig {
+    if (isPerspectiveConfig(this.originalInitialConfig)) {
+      // Converting from perspective original to orthographic
+      return {
+        aspect: this.originalInitialConfig.aspect,
+        near: this.originalInitialConfig.near,
+        far: this.originalInitialConfig.far,
+        position: this.originalInitialConfig.position,
+        size: 50, // Use standard size
+      };
     } else {
-      if (isOrthographicConfig(this.originalInitialConfig)) {
-        // Converting from orthographic original to perspective
-        const perspectiveConfig: PerspectiveCameraConfig = {
-          aspect: this.originalInitialConfig.aspect,
-          near: this.originalInitialConfig.near,
-          far: this.originalInitialConfig.far,
-          position: this.originalInitialConfig.position,
-          fov: 50, // Use standard FOV
-        };
-        (this.implementation as PerspectiveCameraController).updateInitialConfig(perspectiveConfig);
-      } else {
-        // Already perspective
-        (this.implementation as PerspectiveCameraController).updateInitialConfig(
-          this.originalInitialConfig as PerspectiveCameraConfig
-        );
-      }
+      // Already orthographic
+      return this.originalInitialConfig as OrthographicCameraConfig;
+    }
+  }
+
+  private createPerspectiveInitialConfig(): PerspectiveCameraConfig {
+    if (isOrthographicConfig(this.originalInitialConfig)) {
+      // Converting from orthographic original to perspective
+      return {
+        aspect: this.originalInitialConfig.aspect,
+        near: this.originalInitialConfig.near,
+        far: this.originalInitialConfig.far,
+        position: this.originalInitialConfig.position,
+        fov: 50, // Use standard FOV
+      };
+    } else {
+      // Already perspective
+      return this.originalInitialConfig as PerspectiveCameraConfig;
     }
   }
 }
