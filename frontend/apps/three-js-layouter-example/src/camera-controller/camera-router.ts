@@ -1,5 +1,5 @@
 import { getScalingSystem } from '@kuumu/layouter/scaling';
-import * as THREE from 'three';
+import type * as THREE from 'three';
 import type { ProjectionType } from '../models';
 import {
   type OrthographicCameraConfig,
@@ -140,93 +140,33 @@ export class CameraRouter {
     }
   }
 
-  private captureCurrentState(): {
-    position: THREE.Vector3;
-    direction: THREE.Vector3;
-    target: THREE.Vector3;
-    zoomLevel: number;
-    cameraType: string;
-  } {
-    const currentCamera = this.camera;
-    const direction = new THREE.Vector3();
-    currentCamera.getWorldDirection(direction);
-
-    // Calculate the target point (where the camera is looking)
-    const target = new THREE.Vector3();
-    target.copy(currentCamera.position).add(direction);
-
-    // Get appropriate zoom level based on camera type
-    let zoomLevel: number;
-    if (currentCamera.type === 'OrthographicCamera') {
-      zoomLevel = (this.implementation as OrthographicCameraController).getCurrentSize();
-    } else {
-      zoomLevel = (this.implementation as PerspectiveCameraController).getCurrentDistance();
-    }
-
-    return {
-      position: currentCamera.position.clone(),
-      direction,
-      target,
-      zoomLevel,
-      cameraType: currentCamera.type,
-    };
-  }
-
-  // Convert perspective distance to orthographic size for equivalent view
-  private perspectiveToOrthographicSize(distance: number, fovDegrees: number): number {
-    const fovRadians = (fovDegrees * Math.PI) / 180;
-    return 2 * distance * Math.tan(fovRadians / 2);
-  }
-
   switchProjection(
     projection: ProjectionType,
     config: { camera: CameraControllerConfig; zoom: ZoomConfig }
   ): void {
-    // Capture current state before switching
-    const currentState = this.captureCurrentState();
-
     // Dispose current implementation
     this.implementation.dispose();
 
-    // Calculate appropriate initial parameters to maintain similar view
+    // Always reset to initial state - simple and predictable
     const standardFOV = 50;
-    let appropriateSize: number = 50; // Default fallback
+    const standardSize = 50;
+    const initialPosition = { x: 0, y: 0, z: 50 };
 
-    if (projection === 'orthographic') {
-      // Converting from perspective to orthographic
-      if (currentState.cameraType === 'PerspectiveCamera') {
-        const calculatedSize = this.perspectiveToOrthographicSize(
-          currentState.zoomLevel,
-          standardFOV
-        );
-        // Use calculated size to maintain equivalent zoom level
-        appropriateSize = calculatedSize;
-      } else {
-        // Already orthographic, keep the same size
-        appropriateSize = currentState.zoomLevel;
-      }
-    }
-
-    // Create base config preserving the original initial position for reset functionality
+    // Create config with initial state
     const baseConfigForCreation = {
       aspect: config.camera.aspect,
       near: config.camera.near,
       far: config.camera.far,
-      position: {
-        x: currentState.position.x,
-        y: currentState.position.y,
-        z: currentState.position.z,
-      },
+      position: initialPosition,
     };
 
     let newConfig: CameraControllerConfig;
     if (projection === 'orthographic') {
       newConfig = {
         ...baseConfigForCreation,
-        size: appropriateSize,
+        size: standardSize,
       } as OrthographicCameraConfig;
     } else {
-      // For perspective, maintain current position to avoid unwanted camera movement
       newConfig = {
         ...baseConfigForCreation,
         fov: standardFOV,
@@ -245,8 +185,8 @@ export class CameraRouter {
     // Setup event listeners for new implementation
     this.implementation.setupEventListeners();
 
-    // Maintain the same look direction
-    this.camera.lookAt(currentState.target);
+    // Look at origin
+    this.camera.lookAt(0, 0, 0);
 
     // Restore the original initial config to preserve reset functionality
     this.restoreOriginalInitialConfig(projection);
