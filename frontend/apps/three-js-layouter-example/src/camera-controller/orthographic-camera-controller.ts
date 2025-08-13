@@ -124,7 +124,19 @@ export class OrthographicCameraController extends CameraController<
   }
 
   protected onResetFinalized(): void {
-    this.cachedSize = this.initialConfig.size;
+    // Check if this is a second reset (camera already looking at origin)
+    // by checking if camera position matches initial position
+    const isSecondReset =
+      Math.abs(this.camera.position.x - this.initialConfig.position.x) < 0.001 &&
+      Math.abs(this.camera.position.y - this.initialConfig.position.y) < 0.001 &&
+      Math.abs(this.camera.position.z - this.initialConfig.position.z) < 0.001;
+
+    if (isSecondReset) {
+      // Second reset: reset zoom to initial value
+      this.cachedSize = this.initialConfig.size;
+    }
+    // First reset: keep current zoom level (don't modify cachedSize)
+
     this.updateOrthographicBounds();
     this.updateNearFarPlanes();
     this.updateScreenCenterWorld();
