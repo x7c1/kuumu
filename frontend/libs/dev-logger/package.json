@@ -1,7 +1,7 @@
 {
   "name": "@kuumu/dev-logger",
   "version": "1.0.0",
-  "description": "Development logging library with Vite middleware for AI analysis",
+  "description": "Development logging library with Vite middleware for debugging and monitoring",
   "type": "module",
   "exports": {
     ".": {

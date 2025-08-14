@@ -5,12 +5,12 @@ import { type ExampleType, isValidExampleType } from './build-example';
 import { DebugPanel } from './debug-panel';
 import type { HeightMode, HorizontalAlignment, ProjectionType, VerticalAlignment } from './models';
 
-// Initialize DevLogger for AI analysis
+// Initialize DevLogger for development monitoring
 DevLogger.initialize({
   endpoint: '/dev-logger/logs',
 });
 
-console.info('Dev Logger initialized for AI analysis');
+console.info('Development logging system initialized');
 
 const container = document.getElementById('container');
 if (!container) {
