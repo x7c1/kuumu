@@ -22,6 +22,18 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
   let logs: LogEntry[] = [];
   let currentSessionId: string | null = null;
 
+  // Ensure the directory exists
+  const ensureDirectoryExists = () => {
+    try {
+      const dir = path.dirname(logFilePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch (err) {
+      console.warn('Failed to create log directory:', err);
+    }
+  };
+
   // Load existing logs if file exists
   const loadLogs = () => {
     try {
@@ -45,6 +57,7 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
   // Append a single log entry to file (NDJSON format)
   const appendLog = (logEntry: LogEntry) => {
     try {
+      ensureDirectoryExists();
       const logLine = `${JSON.stringify(logEntry)}\n`;
       fs.appendFileSync(logFilePath, logLine);
     } catch (err) {
@@ -55,6 +68,7 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
   // Rewrite entire log file (used for session resets or cleanup)
   const rewriteLogs = () => {
     try {
+      ensureDirectoryExists();
       // Keep only the most recent entries
       if (logs.length > maxLogEntries) {
         logs = logs.slice(-maxLogEntries);
@@ -90,6 +104,7 @@ export function devLoggerPlugin(options: DevLoggerPluginOptions = {}): Plugin {
                 logs = [];
                 currentSessionId = data.sessionId;
                 // Clear the file for new session
+                ensureDirectoryExists();
                 fs.writeFileSync(logFilePath, '');
               }
 

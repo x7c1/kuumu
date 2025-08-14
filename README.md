@@ -20,7 +20,7 @@ npm run build --workspaces
 npm run dev:layouter-example
 ```
 
-- During development, logs are also saved to `frontend/apps/layouter-demo/layouter-demo.log`
+- During development, logs are also saved to `frontend/apps/layouter-demo/logs/layouter-demo.log`
 
 #### Font Management
 
