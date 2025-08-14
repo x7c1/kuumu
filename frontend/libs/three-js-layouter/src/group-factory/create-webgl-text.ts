@@ -19,7 +19,6 @@ export function createWebGLText(
     const textGeometry = new TextGeometry(text, {
       font: font,
       size: fontSize,
-      height: 0,
       depth: 0,
       curveSegments: 12,
       bevelEnabled: false,

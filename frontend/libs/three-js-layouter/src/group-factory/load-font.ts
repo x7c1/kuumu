@@ -24,7 +24,7 @@ interface TTFLoaderResult {
     yMax: number;
   };
   resolution: number;
-  original_font_information: unknown;
+  original_font_information: Record<string, string>;
 }
 
 // WebGL-based text rendering
