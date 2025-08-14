@@ -17,6 +17,9 @@ export default defineConfig({
       resetOnReload: true,
     }),
   ],
+  optimizeDeps: {
+    include: ['three'],
+  },
   build: {
     ...baseConfig.build,
     // Three.js library is ~508KB after minification, so set warning limit above that
