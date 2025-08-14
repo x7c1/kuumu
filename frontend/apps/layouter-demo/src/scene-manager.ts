@@ -12,6 +12,7 @@ export interface SceneConfig {
 export class SceneManager {
   public readonly scene: THREE.Scene;
   public readonly renderer: THREE.WebGLRenderer;
+  private readonly container: HTMLElement;
   private animationId: number | null = null;
   private needsRender = true;
   private continuousRender = false;
@@ -20,6 +21,7 @@ export class SceneManager {
   private rotationCenterIndicator: RotationCenterIndicator;
 
   constructor(config: SceneConfig, container: HTMLElement) {
+    this.container = container;
     this.scene = new THREE.Scene();
     this.renderer = this.createRenderer(config);
 
@@ -109,9 +111,15 @@ export class SceneManager {
     }
   }
 
-  handleResize(width: number, height: number): void {
-    this.renderer.setSize(width, height);
+  /**
+   * Handles window resize by updating renderer size to match container
+   * @returns The new aspect ratio (width/height) for camera update
+   */
+  handleResize(): number {
+    const containerRect = this.container.getBoundingClientRect();
+    this.renderer.setSize(containerRect.width, containerRect.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    return containerRect.width / containerRect.height;
   }
 
   showAxisHelper(show: boolean): void {

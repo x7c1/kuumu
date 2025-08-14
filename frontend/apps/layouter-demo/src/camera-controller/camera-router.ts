@@ -226,4 +226,8 @@ export class CameraRouter {
       return this.originalInitialConfig as PerspectiveCameraConfig;
     }
   }
+
+  updateAspectRatio(aspectRatio: number): void {
+    this.implementation.updateAspectRatio(aspectRatio);
+  }
 }

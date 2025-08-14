@@ -170,4 +170,14 @@ export class OrthographicCameraController extends CameraController<
   protected updateProjectionMatrix(): void {
     this.camera.updateProjectionMatrix();
   }
+
+  public updateAspectRatio(aspectRatio: number): void {
+    // Update orthographic camera bounds based on new aspect ratio
+    const halfSize = this.cachedSize / 2;
+    this.camera.left = -halfSize * aspectRatio;
+    this.camera.right = halfSize * aspectRatio;
+    this.camera.top = halfSize;
+    this.camera.bottom = -halfSize;
+    this.camera.updateProjectionMatrix();
+  }
 }

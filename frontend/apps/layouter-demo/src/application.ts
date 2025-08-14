@@ -149,6 +149,10 @@ export class Application {
 
       scalingSystem.updateViewport();
 
+      // Update renderer size and get new aspect ratio
+      const aspectRatio = this.sceneManager.handleResize();
+      this.cameraRouter.updateAspectRatio(aspectRatio);
+
       const newScaleFactor = scalingSystem.getScaleFactor();
 
       // Only update camera and reload if scale factor actually changed (DPI change)

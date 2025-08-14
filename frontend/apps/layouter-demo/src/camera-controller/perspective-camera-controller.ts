@@ -153,4 +153,9 @@ export class PerspectiveCameraController extends CameraController<
   protected updateProjectionMatrix(): void {
     this.camera.updateProjectionMatrix();
   }
+
+  public updateAspectRatio(aspectRatio: number): void {
+    this.camera.aspect = aspectRatio;
+    this.camera.updateProjectionMatrix();
+  }
 }
