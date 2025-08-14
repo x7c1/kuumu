@@ -1,5 +1,5 @@
 {
-  "name": "@kuumu/three-js-layouter-example",
+  "name": "@kuumu/layouter-demo",
   "version": "1.0.0",
   "description": "Three.js examples for layouter package",
   "main": "dist/index.js",

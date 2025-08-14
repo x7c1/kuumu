@@ -16,11 +16,11 @@ npm run build --workspaces
 #### Layouter Example
 
 ```bash
-# Start development server for three-js-layouter-example app
+# Start development server for layouter-demo app
 npm run dev:layouter-example
 ```
 
-- During development, logs are also saved to `frontend/apps/three-js-layouter-example/three-js-layouter-example.log`
+- During development, logs are also saved to `frontend/apps/layouter-demo/layouter-demo.log`
 
 #### Font Management
 

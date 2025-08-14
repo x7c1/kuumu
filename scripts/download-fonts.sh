@@ -3,7 +3,7 @@ set -e
 
 SCRIPT_DIR="$(dirname "$0")"
 CONFIG_FILE="$SCRIPT_DIR/font-config.json"
-FONT_DIR="frontend/apps/three-js-layouter-example/public/fonts"
+FONT_DIR="frontend/apps/layouter-demo/public/fonts"
 
 # Check if VITE_KUUMU_FONT_PATH is set
 if [ -z "$VITE_KUUMU_FONT_PATH" ]; then

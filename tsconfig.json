@@ -1,6 +1,6 @@
 {
   "references": [
     { "path": "./frontend/apps/kuumu-desktop" },
-    { "path": "./frontend/apps/three-js-layouter-example" }
+    { "path": "./frontend/apps/layouter-demo"}
   ]
 }

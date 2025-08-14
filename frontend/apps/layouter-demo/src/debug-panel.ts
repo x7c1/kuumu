@@ -13,7 +13,7 @@ export interface DebugPanelConfig {
 }
 
 export class DebugPanel {
-  private static readonly STORAGE_KEY = 'three-js-layouter-example-selected';
+  private static readonly STORAGE_KEY = 'layouter-demo-selected';
   private static readonly ALIGNMENT_STORAGE_KEY = 'three-js-layouter-alignment-selected';
   private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY =
     'three-js-layouter-vertical-alignment-selected';

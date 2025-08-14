@@ -11,7 +11,7 @@ export default defineConfig({
       include: ['frontend/libs/', 'frontend/apps/'],
     }),
     devLoggerPlugin({
-      logFile: 'three-js-layouter-example.log',
+      logFile: 'layouter-demo.log',
       endpoint: '/dev-logger/logs',
       maxLogEntries: 1000,
       resetOnReload: true,
