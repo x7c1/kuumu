@@ -78,6 +78,7 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
   protected abstract onResetFinalized(): void;
   protected abstract updateProjectionMatrix(): void;
   public abstract updateAspectRatio(aspectRatio: number): void;
+  public abstract getCurrentAspectRatio(): number;
 
   // Common methods
   setRenderCallback(callback: () => void): void {

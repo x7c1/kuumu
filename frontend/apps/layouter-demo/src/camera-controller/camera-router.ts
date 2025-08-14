@@ -148,6 +148,9 @@ export class CameraRouter {
     projection: ProjectionType,
     config: { camera: CameraControllerConfig; zoom: ZoomConfig }
   ): void {
+    // Get current aspect ratio before disposing implementation
+    const currentAspect = this.getCurrentAspectRatio();
+
     // Dispose current implementation
     this.implementation.dispose();
 
@@ -156,9 +159,9 @@ export class CameraRouter {
     const standardSize = 50;
     const initialPosition = { x: 0, y: 0, z: 50 };
 
-    // Create config with initial state
+    // Create config with current aspect ratio
     const baseConfigForCreation = {
-      aspect: config.camera.aspect,
+      aspect: currentAspect,
       near: config.camera.near,
       far: config.camera.far,
       position: initialPosition,
@@ -229,5 +232,9 @@ export class CameraRouter {
 
   updateAspectRatio(aspectRatio: number): void {
     this.implementation.updateAspectRatio(aspectRatio);
+  }
+
+  private getCurrentAspectRatio(): number {
+    return this.implementation.getCurrentAspectRatio();
   }
 }

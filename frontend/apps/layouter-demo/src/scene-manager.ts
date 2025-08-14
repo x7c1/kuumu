@@ -119,6 +119,7 @@ export class SceneManager {
     const containerRect = this.container.getBoundingClientRect();
     this.renderer.setSize(containerRect.width, containerRect.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.requestRender();
     return containerRect.width / containerRect.height;
   }
 
