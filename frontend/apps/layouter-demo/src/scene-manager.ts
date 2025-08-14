@@ -182,21 +182,7 @@ export class SceneManager {
     const box = new THREE.Box3().setFromObject(group);
     const center = box.getCenter(new THREE.Vector3());
 
-    console.log('[DEBUG] Object bounding box:', box);
-    console.log('[DEBUG] Object center before positioning:', center);
-
     group.position.sub(center);
-
-    console.log('[DEBUG] Object position after centering:', group.position);
-    console.log('[DEBUG] Object children count:', group.children.length);
-
-    // Log first few children positions
-    group.children.forEach((child, index) => {
-      if (index < 3) {
-        console.log(`[DEBUG] Child ${index} position:`, child.position);
-        console.log(`[DEBUG] Child ${index} type:`, child.type);
-      }
-    });
 
     this.scene.add(group);
     this.requestRender();
