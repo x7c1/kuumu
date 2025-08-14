@@ -13,11 +13,11 @@ A scalable monorepo structure supporting multiple applications and shared librar
 npm run build --workspaces
 ```
 
-#### Layouter Example
+#### Layouter Demo
 
 ```bash
 # Start development server for layouter-demo app
-npm run dev:layouter-example
+npm run dev:layouter-demo
 ```
 
 - During development, logs are also saved to `frontend/apps/layouter-demo/logs/layouter-demo.log`
