@@ -153,7 +153,6 @@ export class Application {
 
       // Only update camera and reload if scale factor actually changed (DPI change)
       if (oldScaleFactor !== newScaleFactor) {
-        this.cameraRouter.updateCameraSize();
         this.exampleLoader.reload();
       }
     };
@@ -165,30 +164,25 @@ export class Application {
   }
 
   private forceInitialRender(): void {
-    // Fix TextNode rendering issue by simulating actual mouse wheel events
-    // Since manual zoom works, let's dispatch real wheel events to the DOM
-
+    // Fix TextNode rendering issue by dispatching a mousemove event
+    // Simply triggering the event handler is sufficient to resolve rendering problems
     setTimeout(() => {
-      // Create and dispatch a real wheel event on the canvas element
       const canvas = this.sceneManager.renderer.domElement;
-
-      // Use canvas dimensions and position for precise center coordinates
       const canvasRect = canvas.getBoundingClientRect();
       const centerX = canvasRect.left + canvasRect.width / 2;
       const centerY = canvasRect.top + canvasRect.height / 2;
 
-      // Small zoom in only
-      const wheelEvent = new WheelEvent('wheel', {
-        deltaY: -1, // Zoom in
+      const mouseMoveEvent1 = new MouseEvent('mousemove', {
         clientX: centerX,
         clientY: centerY,
+        ctrlKey: true,
         bubbles: true,
         cancelable: true,
         view: window,
       });
-
-      // Dispatch the event to the canvas
-      canvas.dispatchEvent(wheelEvent);
+      // HACK: Must dispatch twice - single event is not enough. This is a terrible workaround.
+      document.dispatchEvent(mouseMoveEvent1);
+      document.dispatchEvent(mouseMoveEvent1);
     }, 0);
   }
 

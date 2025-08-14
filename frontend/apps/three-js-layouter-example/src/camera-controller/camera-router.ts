@@ -1,5 +1,5 @@
 import { getScalingSystem } from '@kuumu/layouter/scaling';
-import * as THREE from 'three';
+import type * as THREE from 'three';
 import type { ProjectionType } from '../models';
 import {
   type OrthographicCameraConfig,
@@ -31,6 +31,7 @@ type CameraControllerImplementation = OrthographicCameraController | Perspective
 
 export class CameraRouter {
   private implementation: CameraControllerImplementation;
+  private originalInitialConfig: CameraControllerConfig;
 
   // Base orthographic camera size constant
   private static readonly BASE_ORTHOGRAPHIC_SIZE = 50;
@@ -63,34 +64,32 @@ export class CameraRouter {
         ...baseConfig,
         fov: STANDARD_FOV,
       } as PerspectiveCameraConfig;
-      console.log('[CAMERA_INIT] Initializing with perspective camera');
     } else {
       // Default to orthographic
       cameraConfig = {
         ...baseConfig,
         size: STANDARD_ORTHOGRAPHIC_SIZE,
       } as OrthographicCameraConfig;
-      console.log('[CAMERA_INIT] Initializing with orthographic camera');
     }
 
-    console.log('[CAMERA_INIT] Final config:', cameraConfig);
     const router = new CameraRouter(cameraConfig, zoomConfig);
     router.setupEventListeners();
     return router;
   }
 
   constructor(cameraConfig: CameraControllerConfig, zoomConfig: ZoomConfig) {
-    console.log('[CAMERA_ROUTER] Constructor called with config:', cameraConfig);
-    console.log('[CAMERA_ROUTER] isOrthographicConfig:', isOrthographicConfig(cameraConfig));
-    console.log('[CAMERA_ROUTER] isPerspectiveConfig:', isPerspectiveConfig(cameraConfig));
+    // Store the original initial config for reset functionality
+    this.originalInitialConfig = JSON.parse(JSON.stringify(cameraConfig));
 
     // Handle Union type with type guards
     if (isOrthographicConfig(cameraConfig)) {
-      console.log('[CAMERA_ROUTER] Creating OrthographicCameraController');
-      this.implementation = new OrthographicCameraController(cameraConfig, zoomConfig);
+      this.implementation = new OrthographicCameraController(
+        cameraConfig,
+        zoomConfig,
+        cameraConfig
+      );
     } else if (isPerspectiveConfig(cameraConfig)) {
-      console.log('[CAMERA_ROUTER] Creating PerspectiveCameraController');
-      this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig);
+      this.implementation = new PerspectiveCameraController(cameraConfig, zoomConfig, cameraConfig);
     } else {
       console.error(
         '[CAMERA_ROUTER] Invalid config - neither orthographic nor perspective:',
@@ -100,8 +99,6 @@ export class CameraRouter {
         'Invalid camera configuration: must be either OrthographicCameraConfig or PerspectiveCameraConfig'
       );
     }
-
-    console.log('[CAMERA_ROUTER] Final camera type:', this.implementation.camera.type);
   }
 
   get camera(): THREE.Camera {
@@ -128,72 +125,8 @@ export class CameraRouter {
     this.implementation.setupEventListeners();
   }
 
-  getCurrentZoomState(): { type: string; value: number } {
-    if (this.camera.type === 'OrthographicCamera') {
-      return {
-        type: 'orthographic',
-        value: (this.implementation as OrthographicCameraController).getCurrentSize(),
-      };
-    } else {
-      return {
-        type: 'perspective',
-        value: (this.implementation as PerspectiveCameraController).getCurrentDistance(),
-      };
-    }
-  }
-
   dispose(): void {
     this.implementation.dispose();
-  }
-
-  recreateWithConfig(newConfig: CameraControllerConfig, zoomConfig: ZoomConfig): CameraRouter {
-    console.log('[CAMERA_ROUTER] recreateWithConfig called with config:', newConfig);
-
-    // Dispose this controller
-    this.dispose();
-
-    // Create new controller with new config
-    const newController = new CameraRouter(newConfig, zoomConfig);
-    newController.setupEventListeners();
-
-    console.log(
-      '[CAMERA_ROUTER] Created new controller with camera type:',
-      newController.camera.type
-    );
-    return newController;
-  }
-
-  preservePositionAndRecreate(
-    baseConfig: Partial<CameraControllerConfig>,
-    zoomConfig: ZoomConfig,
-    cameraSpecificConfig: { fov?: number; size?: number }
-  ): CameraRouter {
-    console.log('[CAMERA_ROUTER] preservePositionAndRecreate called with:', {
-      baseConfig,
-      cameraSpecificConfig,
-    });
-
-    // Create proper Union type config based on camera type
-    let newConfig: CameraControllerConfig;
-    if (cameraSpecificConfig.size !== undefined) {
-      newConfig = {
-        ...baseConfig,
-        size: cameraSpecificConfig.size,
-      } as OrthographicCameraConfig;
-      console.log('[CAMERA_ROUTER] Creating orthographic config:', newConfig);
-    } else if (cameraSpecificConfig.fov !== undefined) {
-      newConfig = {
-        ...baseConfig,
-        fov: cameraSpecificConfig.fov,
-      } as PerspectiveCameraConfig;
-      console.log('[CAMERA_ROUTER] Creating perspective config:', newConfig);
-    } else {
-      throw new Error('Either size or fov must be provided in cameraSpecificConfig');
-    }
-
-    const result = this.recreateWithConfig(newConfig, zoomConfig);
-    console.log('[CAMERA_ROUTER] Recreated camera type:', result.camera.type);
-    return result;
   }
 
   updateInitialConfig(standardConfig: CameraControllerConfig): void {
@@ -211,88 +144,46 @@ export class CameraRouter {
     }
   }
 
-  private captureCurrentState(): {
-    position: THREE.Vector3;
-    direction: THREE.Vector3;
-  } {
-    const currentCamera = this.camera;
-    const direction = new THREE.Vector3();
-    currentCamera.getWorldDirection(direction);
-
-    return {
-      position: currentCamera.position.clone(),
-      direction,
-    };
-  }
-
-  private restoreState(state: ReturnType<typeof CameraRouter.prototype.captureCurrentState>): void {
-    // Restore position
-    this.camera.position.copy(state.position);
-
-    // Restore camera direction by calculating look target
-    const lookTarget = state.position.clone().add(state.direction.multiplyScalar(50));
-    this.camera.lookAt(lookTarget);
-
-    console.log('[CAMERA_ROUTER] Camera position and direction restored');
-  }
-
-  updateCameraSize(): void {
-    const scalingSystem = getScalingSystem();
-    const newOrthographicSize =
-      CameraRouter.BASE_ORTHOGRAPHIC_SIZE / scalingSystem.getScaleFactor();
-
-    // Update camera size if using orthographic projection
-    if (this.camera.type === 'OrthographicCamera') {
-      const orthoCamera = this.camera as THREE.OrthographicCamera;
-      const aspect = orthoCamera.right / orthoCamera.top;
-
-      orthoCamera.left = (-newOrthographicSize * aspect) / 2;
-      orthoCamera.right = (newOrthographicSize * aspect) / 2;
-      orthoCamera.top = newOrthographicSize / 2;
-      orthoCamera.bottom = -newOrthographicSize / 2;
-      orthoCamera.updateProjectionMatrix();
-    }
-  }
-
   switchProjection(
     projection: ProjectionType,
     config: { camera: CameraControllerConfig; zoom: ZoomConfig }
   ): void {
-    console.log(`[CAMERA_ROUTER] Switching to ${projection} projection`);
-
-    // Capture current state before switching
-    const currentState = this.captureCurrentState();
-
     // Dispose current implementation
     this.implementation.dispose();
 
-    // Create base config for initial camera creation (using standard initial position)
-    const standardInitialPosition = { x: 0, y: 0, z: 50 };
+    // Always reset to initial state - simple and predictable
+    const standardFOV = 50;
+    const standardSize = 50;
+    const initialPosition = { x: 0, y: 0, z: 50 };
+
+    // Create config with initial state
     const baseConfigForCreation = {
       aspect: config.camera.aspect,
       near: config.camera.near,
       far: config.camera.far,
-      position: standardInitialPosition,
+      position: initialPosition,
     };
 
     let newConfig: CameraControllerConfig;
     if (projection === 'orthographic') {
       newConfig = {
         ...baseConfigForCreation,
-        size: 50, // Standard orthographic size
+        size: standardSize,
       } as OrthographicCameraConfig;
     } else {
       newConfig = {
         ...baseConfigForCreation,
-        fov: 50, // Standard FOV
+        fov: standardFOV,
       } as PerspectiveCameraConfig;
     }
 
-    // Create new implementation
+    // Create new implementation with proper initial config
     if (isOrthographicConfig(newConfig)) {
-      this.implementation = new OrthographicCameraController(newConfig, config.zoom);
+      const initialConfig = this.createOrthographicInitialConfig();
+      this.implementation = new OrthographicCameraController(newConfig, config.zoom, initialConfig);
     } else if (isPerspectiveConfig(newConfig)) {
-      this.implementation = new PerspectiveCameraController(newConfig, config.zoom);
+      const initialConfig = this.createPerspectiveInitialConfig();
+      this.implementation = new PerspectiveCameraController(newConfig, config.zoom, initialConfig);
     } else {
       throw new Error('Invalid camera configuration during projection switch');
     }
@@ -300,24 +191,39 @@ export class CameraRouter {
     // Setup event listeners for new implementation
     this.implementation.setupEventListeners();
 
-    // Restore state to new implementation
-    this.restoreState(currentState);
+    // Look at origin
+    this.camera.lookAt(0, 0, 0);
+  }
 
-    // Update initial config for reset functionality
-    if (
-      isOrthographicConfig(newConfig) &&
-      this.implementation instanceof OrthographicCameraController
-    ) {
-      this.implementation.updateInitialConfig(newConfig);
-    } else if (
-      isPerspectiveConfig(newConfig) &&
-      this.implementation instanceof PerspectiveCameraController
-    ) {
-      this.implementation.updateInitialConfig(newConfig);
+  private createOrthographicInitialConfig(): OrthographicCameraConfig {
+    if (isPerspectiveConfig(this.originalInitialConfig)) {
+      // Converting from perspective original to orthographic
+      return {
+        aspect: this.originalInitialConfig.aspect,
+        near: this.originalInitialConfig.near,
+        far: this.originalInitialConfig.far,
+        position: this.originalInitialConfig.position,
+        size: 50, // Use standard size
+      };
+    } else {
+      // Already orthographic
+      return this.originalInitialConfig as OrthographicCameraConfig;
     }
+  }
 
-    console.log(
-      `[CAMERA_ROUTER] Successfully switched to ${projection}, camera type: ${this.camera.type}`
-    );
+  private createPerspectiveInitialConfig(): PerspectiveCameraConfig {
+    if (isOrthographicConfig(this.originalInitialConfig)) {
+      // Converting from orthographic original to perspective
+      return {
+        aspect: this.originalInitialConfig.aspect,
+        near: this.originalInitialConfig.near,
+        far: this.originalInitialConfig.far,
+        position: this.originalInitialConfig.position,
+        fov: 50, // Use standard FOV
+      };
+    } else {
+      // Already perspective
+      return this.originalInitialConfig as PerspectiveCameraConfig;
+    }
   }
 }

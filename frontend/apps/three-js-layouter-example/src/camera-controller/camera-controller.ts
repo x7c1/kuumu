@@ -29,8 +29,8 @@ export abstract class CameraController<TCamera extends THREE.Camera, TConfig ext
   protected screenCenterWorld = new THREE.Vector3();
   protected initialConfig: TConfig;
 
-  constructor(cameraConfig: TConfig, _zoomConfig: ZoomConfig) {
-    this.initialConfig = { ...cameraConfig };
+  constructor(cameraConfig: TConfig, _zoomConfig: ZoomConfig, initialConfig: TConfig) {
+    this.initialConfig = { ...initialConfig };
     this.camera = this.createCamera(cameraConfig);
     this.setupInitialPosition(cameraConfig);
 
