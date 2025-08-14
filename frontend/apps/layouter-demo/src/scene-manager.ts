@@ -12,6 +12,7 @@ export interface SceneConfig {
 export class SceneManager {
   public readonly scene: THREE.Scene;
   public readonly renderer: THREE.WebGLRenderer;
+  private readonly container: HTMLElement;
   private animationId: number | null = null;
   private needsRender = true;
   private continuousRender = false;
@@ -20,6 +21,7 @@ export class SceneManager {
   private rotationCenterIndicator: RotationCenterIndicator;
 
   constructor(config: SceneConfig, container: HTMLElement) {
+    this.container = container;
     this.scene = new THREE.Scene();
     this.renderer = this.createRenderer(config);
 
@@ -109,9 +111,16 @@ export class SceneManager {
     }
   }
 
-  handleResize(width: number, height: number): void {
-    this.renderer.setSize(width, height);
+  /**
+   * Handles window resize by updating renderer size to match container
+   * @returns The new aspect ratio (width/height) for camera update
+   */
+  handleResize(): number {
+    const containerRect = this.container.getBoundingClientRect();
+    this.renderer.setSize(containerRect.width, containerRect.height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.requestRender();
+    return containerRect.width / containerRect.height;
   }
 
   showAxisHelper(show: boolean): void {
@@ -182,21 +191,7 @@ export class SceneManager {
     const box = new THREE.Box3().setFromObject(group);
     const center = box.getCenter(new THREE.Vector3());
 
-    console.log('[DEBUG] Object bounding box:', box);
-    console.log('[DEBUG] Object center before positioning:', center);
-
     group.position.sub(center);
-
-    console.log('[DEBUG] Object position after centering:', group.position);
-    console.log('[DEBUG] Object children count:', group.children.length);
-
-    // Log first few children positions
-    group.children.forEach((child, index) => {
-      if (index < 3) {
-        console.log(`[DEBUG] Child ${index} position:`, child.position);
-        console.log(`[DEBUG] Child ${index} type:`, child.type);
-      }
-    });
 
     this.scene.add(group);
     this.requestRender();

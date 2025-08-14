@@ -13,7 +13,7 @@ export interface DebugPanelConfig {
 }
 
 export class DebugPanel {
-  private static readonly STORAGE_KEY = 'three-js-layouter-example-selected';
+  private static readonly STORAGE_KEY = 'layouter-demo-selected';
   private static readonly ALIGNMENT_STORAGE_KEY = 'three-js-layouter-alignment-selected';
   private static readonly VERTICAL_ALIGNMENT_STORAGE_KEY =
     'three-js-layouter-vertical-alignment-selected';
@@ -97,7 +97,6 @@ export class DebugPanel {
   getSavedAxisHelper(): boolean {
     const saved = localStorage.getItem(DebugPanel.AXIS_HELPER_STORAGE_KEY);
     const result = saved === null ? true : saved === 'true'; // Default to true when no saved value
-    console.log('[DEBUG] getSavedAxisHelper - saved:', saved, 'result:', result);
     return result;
   }
 
@@ -142,7 +141,6 @@ export class DebugPanel {
 
     const savedAxisHelper = this.getSavedAxisHelper();
     this.setCurrentAxisHelper(savedAxisHelper);
-    console.log('[DEBUG] Initial axis helper state set to:', savedAxisHelper);
   }
 
   private saveCurrentState(exampleType: string): void {
@@ -293,7 +291,6 @@ export class DebugPanel {
   }
 
   setCurrentAxisHelper(show: boolean): void {
-    console.log('[DEBUG] setCurrentAxisHelper called with:', show);
     this.axisHelperCheckbox.checked = show;
   }
 

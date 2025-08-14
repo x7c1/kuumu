@@ -36,7 +36,7 @@ Follow Conventional Commits specification:
 
 ## Examples
 
-- `docs(three-js-layouter-example): update README`
+- `docs(layouter-demo): update README`
 - `feat(models): add validation for TypeId`
 - `fix(app): resolve camera positioning issue`
 - `chore: update dependencies`

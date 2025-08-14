@@ -11,12 +11,15 @@ export default defineConfig({
       include: ['frontend/libs/', 'frontend/apps/'],
     }),
     devLoggerPlugin({
-      logFile: 'three-js-layouter-example.log',
+      logFile: 'logs/layouter-demo.log',
       endpoint: '/dev-logger/logs',
       maxLogEntries: 1000,
       resetOnReload: true,
     }),
   ],
+  optimizeDeps: {
+    include: ['three'],
+  },
   build: {
     ...baseConfig.build,
     // Three.js library is ~508KB after minification, so set warning limit above that

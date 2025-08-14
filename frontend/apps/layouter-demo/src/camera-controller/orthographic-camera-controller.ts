@@ -43,11 +43,13 @@ export class OrthographicCameraController extends CameraController<
   }
 
   protected handleWheel(event: WheelEvent): void {
+    const currentAspect = this.getCurrentAspectRatio();
+
     const {
       newValue: newSize,
       zoomRatio,
       worldPosition,
-    } = this.zoomStrategy.calculateZoom(event, this.cachedSize, this.aspect);
+    } = this.zoomStrategy.calculateZoom(event, this.cachedSize, currentAspect);
 
     // Adjust camera position to zoom towards mouse position
     // The world position should remain fixed in world space during zoom
@@ -59,8 +61,8 @@ export class OrthographicCameraController extends CameraController<
 
     // Update orthographic camera properties
     this.cachedSize = newSize;
-    this.camera.left = (-newSize * this.aspect) / 2;
-    this.camera.right = (newSize * this.aspect) / 2;
+    this.camera.left = (-newSize * currentAspect) / 2;
+    this.camera.right = (newSize * currentAspect) / 2;
     this.camera.top = newSize / 2;
     this.camera.bottom = -newSize / 2;
     this.camera.updateProjectionMatrix();
@@ -154,10 +156,16 @@ export class OrthographicCameraController extends CameraController<
     super.onRotationComplete();
   }
 
+  public getCurrentAspectRatio(): number {
+    return (this.camera.right - this.camera.left) / (this.camera.top - this.camera.bottom);
+  }
+
   private updateOrthographicBounds(): void {
     const size = this.cachedSize;
-    this.camera.left = (-size * this.aspect) / 2;
-    this.camera.right = (size * this.aspect) / 2;
+    const currentAspect = this.getCurrentAspectRatio();
+
+    this.camera.left = (-size * currentAspect) / 2;
+    this.camera.right = (size * currentAspect) / 2;
     this.camera.top = size / 2;
     this.camera.bottom = -size / 2;
   }
@@ -168,6 +176,16 @@ export class OrthographicCameraController extends CameraController<
   }
 
   protected updateProjectionMatrix(): void {
+    this.camera.updateProjectionMatrix();
+  }
+
+  public updateAspectRatio(aspectRatio: number): void {
+    // Update orthographic camera bounds based on new aspect ratio
+    const halfSize = this.cachedSize / 2;
+    this.camera.left = -halfSize * aspectRatio;
+    this.camera.right = halfSize * aspectRatio;
+    this.camera.top = halfSize;
+    this.camera.bottom = -halfSize;
     this.camera.updateProjectionMatrix();
   }
 }

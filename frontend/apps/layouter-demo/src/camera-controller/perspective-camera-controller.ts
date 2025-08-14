@@ -127,8 +127,11 @@ export class PerspectiveCameraController extends CameraController<
   }
 
   protected onResetFinalized(): void {
+    // Preserve current aspect ratio instead of reverting to initial
+    const currentAspect = this.camera.aspect;
+
     this.camera.fov = this.initialConfig.fov;
-    this.camera.aspect = this.initialConfig.aspect;
+    this.camera.aspect = currentAspect;
     this.camera.near = this.initialConfig.near;
     this.camera.far = this.initialConfig.far;
 
@@ -152,5 +155,14 @@ export class PerspectiveCameraController extends CameraController<
 
   protected updateProjectionMatrix(): void {
     this.camera.updateProjectionMatrix();
+  }
+
+  public updateAspectRatio(aspectRatio: number): void {
+    this.camera.aspect = aspectRatio;
+    this.camera.updateProjectionMatrix();
+  }
+
+  public getCurrentAspectRatio(): number {
+    return this.camera.aspect;
   }
 }

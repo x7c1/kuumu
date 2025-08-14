@@ -57,7 +57,7 @@ jobs:
     - name: Cache fonts
       uses: actions/cache@v4
       with:
-        path: frontend/apps/three-js-layouter-example/public/fonts/
+        path: frontend/apps/layouter-demo/public/fonts/
         key: ${{ runner.os }}-fonts-${{ hashFiles('scripts/font-config.json') }}
         restore-keys: |
           ${{ runner.os }}-fonts-
@@ -125,7 +125,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       uses: actions/cache@v4
       with:
-        path: frontend/apps/three-js-layouter-example/public/fonts/
+        path: frontend/apps/layouter-demo/public/fonts/
         key: ${{ runner.os }}-fonts-${{ hashFiles('scripts/font-config.json') }}
         restore-keys: |
           ${{ runner.os }}-fonts-

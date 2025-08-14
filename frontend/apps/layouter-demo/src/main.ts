@@ -5,27 +5,28 @@ import { type ExampleType, isValidExampleType } from './build-example';
 import { DebugPanel } from './debug-panel';
 import type { HeightMode, HorizontalAlignment, ProjectionType, VerticalAlignment } from './models';
 
-// Initialize DevLogger for AI analysis
+// Initialize DevLogger for development monitoring
 DevLogger.initialize({
   endpoint: '/dev-logger/logs',
 });
 
-console.info('Dev Logger initialized for AI analysis');
+console.info('Development logging system initialized');
 
 const container = document.getElementById('container');
 if (!container) {
   throw new Error('Container element not found');
 }
 
+const containerRect = container.getBoundingClientRect();
 const config = {
   scene: {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: containerRect.width,
+    height: containerRect.height,
     clearColor: 0x0a0a0a,
     antialias: true,
   },
   camera: {
-    aspect: window.innerWidth / window.innerHeight,
+    aspect: containerRect.width / containerRect.height,
     near: 0.01,
     far: 200,
     position: { x: 0, y: 0, z: 50 },
