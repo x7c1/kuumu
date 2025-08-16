@@ -1,0 +1,19 @@
+{
+  "name": "@kuumu/graph-drawing-demo",
+  "version": "1.0.0",
+  "description": "Graph drawing algorithms demo and testing application",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@kuumu/dev-logger": "file:../../libs/dev-logger"
+  },
+  "devDependencies": {
+    "typescript": "~5.6.2",
+    "vite": "^7.1.2"
+  }
+}

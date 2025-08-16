@@ -15,6 +15,9 @@
     "dev:layouter-demo": "npm run dev -w @kuumu/layouter-demo",
     "build:layouter-demo": "npm run build -w @kuumu/layouter-demo",
 
+    "dev:graph-drawing-demo": "npm run dev -w @kuumu/graph-drawing-demo",
+    "build:graph-drawing-demo": "npm run build -w @kuumu/graph-drawing-demo",
+
     "biome:check": "biome check",
     "biome:check-write": "biome check --write",
     "fonts:setup": "./scripts/download-fonts.sh",
