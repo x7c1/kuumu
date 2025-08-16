@@ -1,5 +1,6 @@
 import { DependencyTracker } from './graph/dependency-tracker.ts';
 import { GraphBuilder } from './graph/graph.ts';
+import * as GraphSerializer from './graph/graph-serializer.ts';
 import { parseDependency, validateDependencyInput } from './graph/parser.ts';
 import type { LayoutAlgorithm } from './layout/algorithm-interface.ts';
 import { PerformanceMonitor } from './layout/performance-monitor.ts';
@@ -10,7 +11,7 @@ import {
   HierarchicalLayout,
   RandomLayout,
 } from './layout/simple-layouts.ts';
-import { SvgRenderer } from './renderer/svg-renderer.ts';
+import { SvgRenderer, type ViewTransform } from './renderer/svg-renderer.ts';
 import { type AlgorithmParameters, UIControls } from './ui/controls.ts';
 
 class GraphDrawingApp {
@@ -49,6 +50,7 @@ class GraphDrawingApp {
 
     this.setupEventHandlers();
     this.updateParameterControls();
+    this.setupViewControls();
     this.render();
   }
 
@@ -98,6 +100,15 @@ class GraphDrawingApp {
       this.updateGraph();
       this.updateUI();
       this.render();
+    });
+
+    // Handle graph save/load
+    this.uiControls.onSaveGraph(() => {
+      this.handleSaveGraph();
+    });
+
+    this.uiControls.onLoadGraph(() => {
+      this.handleLoadGraph();
     });
   }
 
@@ -198,6 +209,7 @@ class GraphDrawingApp {
     this.dependencyTracker.clear();
     this.performanceMonitor.clear();
     this.uiControls.clearPerformanceDisplay();
+    this.uiControls.clearError();
   }
 
   private showComparison(): void {
@@ -223,6 +235,82 @@ class GraphDrawingApp {
 
   private hideComparison(): void {
     this.uiControls.hideComparisonModal();
+  }
+
+  private handleSaveGraph(): void {
+    const dependencies = this.dependencyTracker.getDependencies();
+
+    if (dependencies.length === 0) {
+      this.uiControls.showError('No dependencies to save');
+      return;
+    }
+
+    try {
+      const filename = GraphSerializer.generateFilename('dependency-graph');
+      GraphSerializer.exportToFile(dependencies, filename);
+    } catch (error) {
+      console.error('Failed to save graph:', error);
+      this.uiControls.showError('Failed to save graph file');
+    }
+  }
+
+  private async handleLoadGraph(): Promise<void> {
+    try {
+      const { dependencies } = await GraphSerializer.importFromFile();
+
+      // Validate the data before loading
+      const validationErrors = GraphSerializer.validateGraphData(dependencies);
+      if (validationErrors.length > 0) {
+        this.uiControls.showError(`Invalid graph data: ${validationErrors[0]}`);
+        return;
+      }
+
+      // Clear current graph and load new dependencies
+      this.dependencyTracker.clear();
+
+      // Add each dependency individually to trigger proper validation
+      let loadedCount = 0;
+      for (const dep of dependencies) {
+        const result = this.dependencyTracker.addDependency(dep.from, dep.to);
+        if (result) {
+          loadedCount++;
+        }
+      }
+
+      if (loadedCount === 0) {
+        this.uiControls.showError('No valid dependencies found in file');
+      } else {
+        console.log(`Loaded ${loadedCount} dependencies from file`);
+      }
+    } catch (error) {
+      console.error('Failed to load graph:', error);
+      if (error instanceof Error) {
+        this.uiControls.showError(`Failed to load graph: ${error.message}`);
+      } else {
+        this.uiControls.showError('Failed to load graph file');
+      }
+    }
+  }
+
+  private setupViewControls(): void {
+    // Handle view transform changes
+    this.renderer.onViewTransformChanged((transform: ViewTransform) => {
+      this.uiControls.updateZoomLevel(transform.scale);
+    });
+
+    // Handle reset view button
+    this.uiControls.onResetView(() => {
+      this.renderer.resetView();
+    });
+
+    // Handle fit content button
+    this.uiControls.onFitContent(() => {
+      this.renderer.fitToContent();
+    });
+
+    // Initialize zoom level display
+    const initialTransform = this.renderer.getViewTransform();
+    this.uiControls.updateZoomLevel(initialTransform.scale);
   }
 
   private updateGraph(): void {

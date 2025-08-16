@@ -19,6 +19,11 @@ export class UIControls {
   private comparisonModal: HTMLElement;
   private closeComparisonBtn: HTMLElement;
   private comparisonDataContainer: HTMLElement;
+  private resetViewBtn: HTMLElement;
+  private fitContentBtn: HTMLElement;
+  private zoomLevelSpan: HTMLElement;
+  private saveGraphBtn: HTMLElement;
+  private loadGraphBtn: HTMLElement;
 
   constructor() {
     this.dependencyInput = document.getElementById('dependency-input') as HTMLInputElement;
@@ -34,6 +39,11 @@ export class UIControls {
     this.comparisonModal = document.getElementById('comparison-modal') as HTMLElement;
     this.closeComparisonBtn = document.getElementById('close-comparison-btn') as HTMLElement;
     this.comparisonDataContainer = document.getElementById('comparison-data') as HTMLElement;
+    this.resetViewBtn = document.getElementById('reset-view-btn') as HTMLElement;
+    this.fitContentBtn = document.getElementById('fit-content-btn') as HTMLElement;
+    this.zoomLevelSpan = document.getElementById('zoom-level') as HTMLElement;
+    this.saveGraphBtn = document.getElementById('save-graph-btn') as HTMLElement;
+    this.loadGraphBtn = document.getElementById('load-graph-btn') as HTMLElement;
 
     if (
       !this.dependencyInput ||
@@ -46,7 +56,12 @@ export class UIControls {
       !this.showComparisonBtn ||
       !this.comparisonModal ||
       !this.closeComparisonBtn ||
-      !this.comparisonDataContainer
+      !this.comparisonDataContainer ||
+      !this.resetViewBtn ||
+      !this.fitContentBtn ||
+      !this.zoomLevelSpan ||
+      !this.saveGraphBtn ||
+      !this.loadGraphBtn
     ) {
       throw new Error('Required UI elements not found');
     }
@@ -474,5 +489,28 @@ export class UIControls {
     `;
 
     this.comparisonDataContainer.innerHTML = html;
+  }
+
+  // View control methods
+  onResetView(callback: () => void): void {
+    this.resetViewBtn.addEventListener('click', callback);
+  }
+
+  onFitContent(callback: () => void): void {
+    this.fitContentBtn.addEventListener('click', callback);
+  }
+
+  updateZoomLevel(scale: number): void {
+    const percentage = Math.round(scale * 100);
+    this.zoomLevelSpan.textContent = `Zoom: ${percentage}%`;
+  }
+
+  // Graph save/load methods
+  onSaveGraph(callback: () => void): void {
+    this.saveGraphBtn.addEventListener('click', callback);
+  }
+
+  onLoadGraph(callback: () => void): void {
+    this.loadGraphBtn.addEventListener('click', callback);
   }
 }

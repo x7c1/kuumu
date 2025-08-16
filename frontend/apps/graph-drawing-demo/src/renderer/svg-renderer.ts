@@ -1,4 +1,7 @@
 import type { Edge, Graph, Node } from '../graph/graph.ts';
+import { SVGInteractionHandler, type ViewTransform } from './svg-interactions.ts';
+
+export type { ViewTransform };
 
 export interface RenderStyle {
   nodeRadius: number;
@@ -14,6 +17,7 @@ export interface RenderStyle {
 export class SvgRenderer {
   private svg: SVGElement;
   private style: RenderStyle;
+  private interactionHandler: SVGInteractionHandler;
 
   constructor(svgElement: SVGElement, style?: Partial<RenderStyle>) {
     this.svg = svgElement;
@@ -28,6 +32,12 @@ export class SvgRenderer {
       fontSize: 12,
       ...style,
     };
+
+    // Initialize interaction handler
+    this.interactionHandler = new SVGInteractionHandler(this.svg);
+
+    // Set cursor style for interactive SVG
+    this.svg.style.cursor = 'grab';
   }
 
   render(graph: Graph): void {
@@ -38,12 +48,15 @@ export class SvgRenderer {
       return;
     }
 
-    // Create groups for edges and nodes
+    // Get the viewport group from interaction handler
+    const viewportGroup = this.interactionHandler.getViewportGroup();
+
+    // Create groups for edges and nodes within the viewport
     const edgesGroup = this.createSVGElement('g', { class: 'edges' });
     const nodesGroup = this.createSVGElement('g', { class: 'nodes' });
 
-    this.svg.appendChild(edgesGroup);
-    this.svg.appendChild(nodesGroup);
+    viewportGroup.appendChild(edgesGroup);
+    viewportGroup.appendChild(nodesGroup);
 
     // Render edges first (so they appear behind nodes)
     graph.edges.forEach((edge) => {
@@ -151,7 +164,9 @@ export class SvgRenderer {
   }
 
   clear(): void {
-    this.svg.innerHTML = '';
+    // Clear the viewport group instead of the entire SVG
+    const viewportGroup = this.interactionHandler.getViewportGroup();
+    viewportGroup.innerHTML = '';
     this.setupArrowMarker();
   }
 
@@ -184,5 +199,26 @@ export class SvgRenderer {
 
   updateStyle(newStyle: Partial<RenderStyle>): void {
     this.style = { ...this.style, ...newStyle };
+  }
+
+  // Interaction API
+  resetView(): void {
+    this.interactionHandler.resetView();
+  }
+
+  fitToContent(): void {
+    this.interactionHandler.fitToContent();
+  }
+
+  getViewTransform(): ViewTransform {
+    return this.interactionHandler.getTransform();
+  }
+
+  onViewTransformChanged(callback: (transform: ViewTransform) => void): void {
+    this.interactionHandler.onTransformChanged(callback);
+  }
+
+  destroy(): void {
+    this.interactionHandler.destroy();
   }
 }
