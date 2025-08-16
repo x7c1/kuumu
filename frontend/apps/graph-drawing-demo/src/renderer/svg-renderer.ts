@@ -139,18 +139,21 @@ export class SvgRenderer {
   }
 
   private renderEmptyState(): void {
+    const viewportGroup = this.interactionHandler.getViewportGroup();
+
     const text = this.createSVGElement('text', {
-      x: '50%',
-      y: '50%',
+      x: '0',
+      y: '0',
       'text-anchor': 'middle',
       'dominant-baseline': 'central',
       fill: '#9ca3af',
       'font-size': '16',
       'font-family': 'Arial, sans-serif',
+      transform: 'translate(400, 300)', // Center in typical viewport
     });
     text.textContent = 'Add dependencies to see the graph';
 
-    this.svg.appendChild(text);
+    viewportGroup.appendChild(text);
   }
 
   private createSVGElement(tagName: string, attributes: Record<string, string>): SVGElement {
@@ -164,9 +167,18 @@ export class SvgRenderer {
   }
 
   clear(): void {
-    // Clear the viewport group instead of the entire SVG
+    // Clear the viewport group
     const viewportGroup = this.interactionHandler.getViewportGroup();
     viewportGroup.innerHTML = '';
+
+    // Clear any remaining elements from the SVG root that might have been added
+    const svgChildren = Array.from(this.svg.children);
+    for (const child of svgChildren) {
+      if (child.tagName === 'text') {
+        this.svg.removeChild(child);
+      }
+    }
+
     this.setupArrowMarker();
   }
 
