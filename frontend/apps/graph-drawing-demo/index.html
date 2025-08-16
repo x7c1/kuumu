@@ -140,6 +140,222 @@
       border: 1px solid #d1d5db;
       border-radius: 4px;
     }
+
+    .algorithm-parameters {
+      margin: 15px 0;
+      padding: 10px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+    }
+
+    .parameter-group {
+      margin-bottom: 10px;
+    }
+
+    .parameter-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .parameter-group input[type="range"] {
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .parameter-group input[type="number"] {
+      width: 80px;
+      padding: 4px 6px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+
+    .parameter-value {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .action-buttons {
+      margin-top: 15px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .apply-btn, .clear-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .apply-btn {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .apply-btn:hover {
+      background: #2563eb;
+    }
+
+    .clear-btn {
+      background: #ef4444;
+      color: white;
+    }
+
+    .clear-btn:hover {
+      background: #dc2626;
+    }
+
+    .performance-display {
+      margin-top: 20px;
+      padding: 10px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+    }
+
+    .performance-display h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .performance-metric {
+      margin-bottom: 8px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .performance-metric-label {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .performance-metric-value {
+      float: right;
+      font-family: monospace;
+    }
+
+    .no-performance {
+      color: #9ca3af;
+      font-style: italic;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .comparison-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 6px 10px;
+      background: #6b7280;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .comparison-btn:hover {
+      background: #4b5563;
+    }
+
+    .comparison-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .comparison-content {
+      background: white;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 800px;
+      max-height: 80%;
+      overflow: auto;
+    }
+
+    .comparison-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .comparison-header h3 {
+      margin: 0;
+      color: #374151;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6b7280;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      color: #374151;
+    }
+
+    .comparison-data {
+      padding: 20px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .comparison-table th,
+    .comparison-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .comparison-table th {
+      background: #f9fafb;
+      font-weight: 500;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .comparison-table td {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .comparison-table .algorithm-name {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .comparison-table .best-time {
+      color: #059669;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -168,7 +384,36 @@
               <option value="grid">Grid Layout</option>
               <option value="circle">Circle Layout</option>
               <option value="random">Random Layout</option>
+              <option value="force">Force-Directed Layout</option>
+              <option value="hierarchical">Hierarchical Layout</option>
             </select>
+          </div>
+
+          <div id="algorithm-parameters" class="algorithm-parameters">
+            <!-- Algorithm-specific parameters will be rendered here -->
+          </div>
+
+          <div class="action-buttons">
+            <button id="apply-layout-btn" class="apply-btn">Apply Layout</button>
+            <button id="clear-graph-btn" class="clear-btn">Clear Graph</button>
+          </div>
+
+          <div id="performance-display" class="performance-display">
+            <h4>Performance</h4>
+            <div id="performance-metrics"></div>
+            <button id="show-comparison-btn" class="comparison-btn">Show Algorithm Comparison</button>
+          </div>
+
+          <div id="comparison-modal" class="comparison-modal" style="display: none;">
+            <div class="comparison-content">
+              <div class="comparison-header">
+                <h3>Algorithm Performance Comparison</h3>
+                <button id="close-comparison-btn" class="close-btn">×</button>
+              </div>
+              <div id="comparison-data" class="comparison-data">
+                <!-- Comparison data will be rendered here -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
