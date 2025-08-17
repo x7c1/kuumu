@@ -133,6 +133,16 @@ class GraphDrawingApp {
         this.renderer.clearHighlight();
       }
     );
+
+    // Handle node hover for highlighting dependencies
+    this.renderer.onNodeHover(
+      (nodeId: string) => {
+        this.uiControls.highlightDependenciesForNode(nodeId);
+      },
+      () => {
+        this.uiControls.clearDependencyHighlight();
+      }
+    );
   }
 
   private handleDependencyAdd(input: string): void {

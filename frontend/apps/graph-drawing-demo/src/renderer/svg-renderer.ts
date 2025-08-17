@@ -336,4 +336,31 @@ export class SvgRenderer {
   destroy(): void {
     this.interactionHandler.destroy();
   }
+
+  // Node hover handlers
+  onNodeHover(
+    onMouseEnter: (nodeId: string) => void,
+    onMouseLeave: () => void
+  ): void {
+    this.svg.addEventListener('mouseenter', (e) => {
+      const target = e.target as HTMLElement;
+      const nodeGroup = target.closest('.node') as SVGElement;
+
+      if (nodeGroup) {
+        const nodeLabel = nodeGroup.querySelector('.node-label') as SVGElement;
+        if (nodeLabel && nodeLabel.textContent) {
+          onMouseEnter(nodeLabel.textContent);
+        }
+      }
+    }, true);
+
+    this.svg.addEventListener('mouseleave', (e) => {
+      const target = e.target as HTMLElement;
+      const nodeGroup = target.closest('.node') as SVGElement;
+
+      if (nodeGroup) {
+        onMouseLeave();
+      }
+    }, true);
+  }
 }

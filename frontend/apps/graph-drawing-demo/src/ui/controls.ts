@@ -546,4 +546,28 @@ export class UIControls {
       }
     }, true);
   }
+
+  // Highlight dependency items in the list
+  highlightDependenciesForNode(nodeId: string): void {
+    const dependencyItems = this.dependencyItems.querySelectorAll('.dependency-item');
+
+    dependencyItems.forEach((item) => {
+      const element = item as HTMLElement;
+      const fromNodeId = element.dataset.from;
+      const toNodeId = element.dataset.to;
+
+      if (fromNodeId === nodeId || toNodeId === nodeId) {
+        element.classList.add('dependency-highlighted');
+      } else {
+        element.classList.add('dependency-dimmed');
+      }
+    });
+  }
+
+  clearDependencyHighlight(): void {
+    const dependencyItems = this.dependencyItems.querySelectorAll('.dependency-item');
+    dependencyItems.forEach((item) => {
+      item.classList.remove('dependency-highlighted', 'dependency-dimmed');
+    });
+  }
 }
