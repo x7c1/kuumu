@@ -45,6 +45,16 @@ Fonts are configured in `scripts/font-config.json`. To switch fonts:
 2. Update `.envrc` to use new font path
 3. Run font setup to download
 
+#### Graph Drawing Demo
+
+```bash
+# Start development server for graph drawing demo app
+npm run dev:graph-drawing-demo
+
+# Build graph drawing demo app
+npm run build:graph-drawing-demo
+```
+
 ### Desktop Application
 
 ```bash
