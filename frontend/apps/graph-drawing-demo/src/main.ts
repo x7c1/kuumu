@@ -8,6 +8,7 @@ import {
   ForceDirectedLayout,
   GridLayout,
   HierarchicalLayout,
+  KuumuLayout,
   RandomLayout,
 } from './layout/index.ts';
 import { PerformanceMonitor } from './layout/performance-monitor.ts';
@@ -44,6 +45,7 @@ class GraphDrawingApp {
       ['random', new RandomLayout()],
       ['force', new ForceDirectedLayout()],
       ['hierarchical', new HierarchicalLayout()],
+      ['kuumu', new KuumuLayout()],
     ]);
     this.currentAlgorithm = this.algorithms.get('grid')!;
     this.performanceMonitor = new PerformanceMonitor();
@@ -169,6 +171,8 @@ class GraphDrawingApp {
         return new ForceDirectedLayout();
       case 'hierarchical':
         return new HierarchicalLayout();
+      case 'kuumu':
+        return new KuumuLayout();
       default:
         return new GridLayout();
     }
@@ -199,6 +203,8 @@ class GraphDrawingApp {
         );
       case 'hierarchical':
         return new HierarchicalLayout(parameters.levelHeight || 100, parameters.nodeSpacing || 80);
+      case 'kuumu':
+        return new KuumuLayout();
       default:
         return new GridLayout();
     }
