@@ -157,6 +157,7 @@ class GraphDrawingApp {
   private handleAlgorithmChange(algorithmKey: string): void {
     this.currentAlgorithm = this.createAlgorithmWithDefaults(algorithmKey);
     this.saveSelectedAlgorithm(algorithmKey);
+    this.resetNodePositions();
     this.updateParameterControls();
     this.render();
   }
@@ -386,6 +387,14 @@ class GraphDrawingApp {
       console.warn('Failed to load selected algorithm from localStorage:', error);
       return 'kuumu';
     }
+  }
+
+  private resetNodePositions(): void {
+    const graph = this.graphBuilder.getGraph();
+    graph.nodes.forEach((node) => {
+      node.x = 0;
+      node.y = 0;
+    });
   }
 }
 
