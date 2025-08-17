@@ -23,6 +23,7 @@ class GraphDrawingApp {
   private algorithms: Map<string, LayoutAlgorithm>;
   private currentAlgorithm: LayoutAlgorithm;
   private performanceMonitor: PerformanceMonitor;
+  private readonly algorithmStorageKey = 'graph-drawing-demo-algorithm';
 
   constructor() {
     this.dependencyTracker = new DependencyTracker();
@@ -47,10 +48,16 @@ class GraphDrawingApp {
       ['hierarchical', new HierarchicalLayout()],
       ['kuumu', new KuumuLayout()],
     ]);
-    this.currentAlgorithm = this.algorithms.get('grid')!;
+
+    // Load saved algorithm or default to kuumu
+    const savedAlgorithm = this.loadSelectedAlgorithm();
+    this.currentAlgorithm = this.algorithms.get(savedAlgorithm) || this.algorithms.get('kuumu')!;
     this.performanceMonitor = new PerformanceMonitor();
 
     this.setupEventHandlers();
+
+    // Set the UI to match the loaded algorithm
+    this.uiControls.setCurrentAlgorithm(savedAlgorithm);
     this.updateParameterControls();
     this.setupViewControls();
 
@@ -149,6 +156,7 @@ class GraphDrawingApp {
 
   private handleAlgorithmChange(algorithmKey: string): void {
     this.currentAlgorithm = this.createAlgorithmWithDefaults(algorithmKey);
+    this.saveSelectedAlgorithm(algorithmKey);
     this.updateParameterControls();
     this.render();
   }
@@ -361,6 +369,23 @@ class GraphDrawingApp {
     // Update performance display
     const averageTime = this.performanceMonitor.getAverageExecutionTime(this.currentAlgorithm.name);
     this.uiControls.updatePerformanceDisplay(metrics, averageTime);
+  }
+
+  private saveSelectedAlgorithm(algorithmKey: string): void {
+    try {
+      localStorage.setItem(this.algorithmStorageKey, algorithmKey);
+    } catch (error) {
+      console.warn('Failed to save selected algorithm to localStorage:', error);
+    }
+  }
+
+  private loadSelectedAlgorithm(): string {
+    try {
+      return localStorage.getItem(this.algorithmStorageKey) || 'kuumu';
+    } catch (error) {
+      console.warn('Failed to load selected algorithm from localStorage:', error);
+      return 'kuumu';
+    }
   }
 }
 

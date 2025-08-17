@@ -147,6 +147,10 @@ export class UIControls {
     return this.algorithmSelect.value;
   }
 
+  setCurrentAlgorithm(algorithmKey: string): void {
+    this.algorithmSelect.value = algorithmKey;
+  }
+
   onApplyLayout(callback: () => void): void {
     this.applyLayoutBtn.addEventListener('click', callback);
   }
