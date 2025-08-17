@@ -123,6 +123,16 @@ class GraphDrawingApp {
     this.uiControls.onLoadGraph(() => {
       this.handleLoadGraph();
     });
+
+    // Handle dependency hover for highlighting
+    this.uiControls.onDependencyHover(
+      (fromNodeId: string, toNodeId: string) => {
+        this.renderer.highlightDependency(fromNodeId, toNodeId);
+      },
+      () => {
+        this.renderer.clearHighlight();
+      }
+    );
   }
 
   private handleDependencyAdd(input: string): void {

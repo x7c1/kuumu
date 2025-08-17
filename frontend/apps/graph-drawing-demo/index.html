@@ -438,6 +438,46 @@
       color: #059669;
       font-weight: 500;
     }
+
+    /* Highlight styles for dependency hover */
+    .dependency-item:hover {
+      background: #e0f2fe;
+      border-color: #0ea5e9;
+      cursor: pointer;
+    }
+
+    /* SVG highlight styles */
+    .highlighted-node {
+      fill: #f59e0b !important;
+      stroke: #d97706 !important;
+      stroke-width: 3 !important;
+    }
+
+    .highlighted-edge {
+      stroke: #f59e0b !important;
+      stroke-width: 4 !important;
+    }
+
+    .highlighted-text {
+      fill: #ffffff !important;
+      font-weight: bold !important;
+    }
+
+    .dimmed-node {
+      fill: #d1d5db !important;
+      stroke: #9ca3af !important;
+      opacity: 0.4;
+    }
+
+    .dimmed-edge {
+      stroke: #d1d5db !important;
+      opacity: 0.4;
+    }
+
+    .dimmed-text {
+      fill: #6b7280 !important;
+      opacity: 0.4;
+    }
   </style>
 </head>
 <body>

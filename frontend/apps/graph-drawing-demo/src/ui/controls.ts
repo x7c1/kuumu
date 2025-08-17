@@ -107,7 +107,7 @@ export class UIControls {
     this.dependencyItems.innerHTML = dependencies
       .map(
         (dep) => `
-        <div class="dependency-item">
+        <div class="dependency-item" data-from="${dep.label.split('->')[0]}" data-to="${dep.label.split('->')[1]}">
           <span class="dependency-text">${dep.id}:${dep.label}</span>
           <button class="remove-btn" data-id="${dep.id}" title="Remove dependency">×</button>
         </div>
@@ -516,5 +516,34 @@ export class UIControls {
 
   onLoadGraph(callback: () => void): void {
     this.loadGraphBtn.addEventListener('click', callback);
+  }
+
+  // Dependency hover handlers
+  onDependencyHover(
+    onMouseEnter: (fromNodeId: string, toNodeId: string) => void,
+    onMouseLeave: () => void
+  ): void {
+    this.dependencyItems.addEventListener('mouseenter', (e) => {
+      const target = e.target as HTMLElement;
+      const dependencyItem = target.closest('.dependency-item') as HTMLElement;
+
+      if (dependencyItem) {
+        const fromNodeId = dependencyItem.dataset.from;
+        const toNodeId = dependencyItem.dataset.to;
+
+        if (fromNodeId && toNodeId) {
+          onMouseEnter(fromNodeId, toNodeId);
+        }
+      }
+    }, true);
+
+    this.dependencyItems.addEventListener('mouseleave', (e) => {
+      const target = e.target as HTMLElement;
+      const dependencyItem = target.closest('.dependency-item') as HTMLElement;
+
+      if (dependencyItem) {
+        onMouseLeave();
+      }
+    }, true);
   }
 }

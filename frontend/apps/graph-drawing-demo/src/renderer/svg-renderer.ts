@@ -182,6 +182,109 @@ export class SvgRenderer {
     this.setupArrowMarker();
   }
 
+  highlightDependency(fromNodeId: string, toNodeId: string): void {
+    // Remove any existing highlights
+    this.clearHighlight();
+
+    // Find and highlight the specific dependency
+    const nodes = this.svg.querySelectorAll('.node');
+    const edges = this.svg.querySelectorAll('.edge-line');
+
+    // Highlight nodes
+    nodes.forEach((nodeGroup) => {
+      const nodeElement = nodeGroup as SVGElement;
+      const transform = nodeElement.getAttribute('transform') || '';
+      const circle = nodeElement.querySelector('.node-circle') as SVGElement;
+      const text = nodeElement.querySelector('.node-label') as SVGElement;
+
+      if (text && (text.textContent === fromNodeId || text.textContent === toNodeId)) {
+        circle?.classList.add('highlighted-node');
+        text?.classList.add('highlighted-text');
+      } else {
+        circle?.classList.add('dimmed-node');
+        text?.classList.add('dimmed-text');
+      }
+    });
+
+    // Highlight edge
+    edges.forEach((edge) => {
+      const edgeElement = edge as SVGElement;
+      if (this.isEdgeConnecting(edgeElement, fromNodeId, toNodeId)) {
+        edgeElement.classList.add('highlighted-edge');
+      } else {
+        edgeElement.classList.add('dimmed-edge');
+      }
+    });
+  }
+
+  clearHighlight(): void {
+    const allElements = this.svg.querySelectorAll('.highlighted-node, .highlighted-edge, .highlighted-text, .dimmed-node, .dimmed-edge, .dimmed-text');
+    allElements.forEach((element) => {
+      element.classList.remove('highlighted-node', 'highlighted-edge', 'highlighted-text', 'dimmed-node', 'dimmed-edge', 'dimmed-text');
+    });
+  }
+
+  private isEdgeConnecting(edgeElement: SVGElement, fromNodeId: string, toNodeId: string): boolean {
+    // Get the edge coordinates
+    const x1 = parseFloat(edgeElement.getAttribute('x1') || '0');
+    const y1 = parseFloat(edgeElement.getAttribute('y1') || '0');
+    const x2 = parseFloat(edgeElement.getAttribute('x2') || '0');
+    const y2 = parseFloat(edgeElement.getAttribute('y2') || '0');
+
+    // Find nodes by their labels and check if their positions match the edge coordinates
+    const nodes = this.svg.querySelectorAll('.node');
+    let fromNode: SVGElement | null = null;
+    let toNode: SVGElement | null = null;
+
+    nodes.forEach((nodeGroup) => {
+      const nodeElement = nodeGroup as SVGElement;
+      const text = nodeElement.querySelector('.node-label') as SVGElement;
+      if (text?.textContent === fromNodeId) {
+        fromNode = nodeElement;
+      } else if (text?.textContent === toNodeId) {
+        toNode = nodeElement;
+      }
+    });
+
+    if (!fromNode || !toNode) return false;
+
+    // Extract node positions from transform attributes
+    const fromTransform = fromNode.getAttribute('transform') || '';
+    const toTransform = toNode.getAttribute('transform') || '';
+
+    const fromMatch = fromTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+    const toMatch = toTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+
+    if (!fromMatch || !toMatch) return false;
+
+    const fromX = parseFloat(fromMatch[1]);
+    const fromY = parseFloat(fromMatch[2]);
+    const toX = parseFloat(toMatch[1]);
+    const toY = parseFloat(toMatch[2]);
+
+    // Calculate expected edge positions considering node radius
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance === 0) return false;
+
+    const unitX = dx / distance;
+    const unitY = dy / distance;
+
+    const expectedStartX = fromX + unitX * this.style.nodeRadius;
+    const expectedStartY = fromY + unitY * this.style.nodeRadius;
+    const expectedEndX = toX - unitX * this.style.nodeRadius;
+    const expectedEndY = toY - unitY * this.style.nodeRadius;
+
+    // Check if edge coordinates match (with some tolerance for floating point errors)
+    const tolerance = 1;
+    return Math.abs(x1 - expectedStartX) < tolerance &&
+           Math.abs(y1 - expectedStartY) < tolerance &&
+           Math.abs(x2 - expectedEndX) < tolerance &&
+           Math.abs(y2 - expectedEndY) < tolerance;
+  }
+
   private setupArrowMarker(): void {
     // Create defs element if it doesn't exist
     let defs = this.svg.querySelector('defs') as SVGDefsElement;
