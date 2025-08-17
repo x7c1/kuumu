@@ -3,14 +3,14 @@ import { GraphBuilder } from './graph/graph.ts';
 import * as GraphSerializer from './graph/graph-serializer.ts';
 import { parseDependency, validateDependencyInput } from './graph/parser.ts';
 import type { LayoutAlgorithm } from './layout/algorithm-interface.ts';
-import { PerformanceMonitor } from './layout/performance-monitor.ts';
 import {
   CircleLayout,
   ForceDirectedLayout,
   GridLayout,
   HierarchicalLayout,
   RandomLayout,
-} from './layout/simple-layouts.ts';
+} from './layout/index.ts';
+import { PerformanceMonitor } from './layout/performance-monitor.ts';
 import { SvgRenderer, type ViewTransform } from './renderer/svg-renderer.ts';
 import { type AlgorithmParameters, UIControls } from './ui/controls.ts';
 
