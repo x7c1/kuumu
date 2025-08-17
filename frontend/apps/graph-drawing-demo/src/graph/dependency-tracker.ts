@@ -9,6 +9,11 @@ export class DependencyTracker {
   private dependencies: DependencyEntry[] = [];
   private nextId = 1;
   private onChangeCallbacks: (() => void)[] = [];
+  private readonly storageKey = 'graph-drawing-demo-dependencies';
+
+  constructor() {
+    this.loadFromStorage();
+  }
 
   addDependency(from: string, to: string): DependencyEntry | null {
     // Check for duplicate dependencies
@@ -25,6 +30,7 @@ export class DependencyTracker {
     };
 
     this.dependencies.push(entry);
+    this.saveToStorage();
     this.notifyChange();
     return entry;
   }
@@ -36,6 +42,7 @@ export class DependencyTracker {
     }
 
     this.dependencies.splice(index, 1);
+    this.saveToStorage();
     this.notifyChange();
     return true;
   }
@@ -64,6 +71,7 @@ export class DependencyTracker {
   clear(): void {
     this.dependencies = [];
     this.nextId = 1;
+    this.saveToStorage();
     this.notifyChange();
   }
 
@@ -73,5 +81,38 @@ export class DependencyTracker {
 
   private notifyChange(): void {
     this.onChangeCallbacks.forEach((callback) => callback());
+  }
+
+  private saveToStorage(): void {
+    try {
+      const data = {
+        dependencies: this.dependencies,
+        nextId: this.nextId,
+      };
+      localStorage.setItem(this.storageKey, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Failed to save dependencies to localStorage:', error);
+    }
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.storageKey);
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data.dependencies && Array.isArray(data.dependencies)) {
+          this.dependencies = data.dependencies;
+          this.nextId = data.nextId || this.getMaxId() + 1;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load dependencies from localStorage:', error);
+    }
+  }
+
+  // Get the maximum ID from existing dependencies to prevent ID conflicts
+  // when restoring from localStorage without a saved nextId (backward compatibility)
+  private getMaxId(): number {
+    return this.dependencies.reduce((maxId, dep) => Math.max(maxId, dep.id), 0);
   }
 }

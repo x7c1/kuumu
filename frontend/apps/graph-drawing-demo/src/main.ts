@@ -51,6 +51,10 @@ class GraphDrawingApp {
     this.setupEventHandlers();
     this.updateParameterControls();
     this.setupViewControls();
+
+    // Update graph and UI with any loaded dependencies
+    this.updateGraph();
+    this.updateUI();
     this.render();
   }
 
