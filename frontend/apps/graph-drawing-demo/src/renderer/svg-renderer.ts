@@ -193,7 +193,6 @@ export class SvgRenderer {
     // Highlight nodes
     nodes.forEach((nodeGroup) => {
       const nodeElement = nodeGroup as SVGElement;
-      const transform = nodeElement.getAttribute('transform') || '';
       const circle = nodeElement.querySelector('.node-circle') as SVGElement;
       const text = nodeElement.querySelector('.node-label') as SVGElement;
 
@@ -218,10 +217,98 @@ export class SvgRenderer {
   }
 
   clearHighlight(): void {
-    const allElements = this.svg.querySelectorAll('.highlighted-node, .highlighted-edge, .highlighted-text, .dimmed-node, .dimmed-edge, .dimmed-text');
+    const allElements = this.svg.querySelectorAll(
+      '.highlighted-node, .highlighted-edge, .highlighted-text, .dimmed-node, .dimmed-edge, .dimmed-text'
+    );
     allElements.forEach((element) => {
-      element.classList.remove('highlighted-node', 'highlighted-edge', 'highlighted-text', 'dimmed-node', 'dimmed-edge', 'dimmed-text');
+      element.classList.remove(
+        'highlighted-node',
+        'highlighted-edge',
+        'highlighted-text',
+        'dimmed-node',
+        'dimmed-edge',
+        'dimmed-text'
+      );
     });
+  }
+
+  highlightDependenciesForNode(nodeId: string): void {
+    // Remove any existing highlights
+    this.clearHighlight();
+
+    // Find and highlight nodes and edges connected to the specified node
+    const nodes = this.svg.querySelectorAll('.node');
+    const edges = this.svg.querySelectorAll('.edge-line');
+
+    // Highlight the target node and connected nodes/edges
+    nodes.forEach((nodeGroup) => {
+      const nodeElement = nodeGroup as SVGElement;
+      const text = nodeElement.querySelector('.node-label') as SVGElement;
+      const circle = nodeElement.querySelector('.node-circle') as SVGElement;
+
+      if (text && text.textContent === nodeId) {
+        // Highlight the target node
+        circle?.classList.add('highlighted-node');
+        text?.classList.add('highlighted-text');
+      } else {
+        // Check if this node is connected to the target node
+        const isConnected = this.isNodeConnectedTo(text?.textContent || '', nodeId);
+        if (isConnected) {
+          circle?.classList.add('highlighted-node');
+          text?.classList.add('highlighted-text');
+        } else {
+          circle?.classList.add('dimmed-node');
+          text?.classList.add('dimmed-text');
+        }
+      }
+    });
+
+    // Highlight edges connected to the target node
+    edges.forEach((edge) => {
+      const edgeElement = edge as SVGElement;
+      if (this.isEdgeConnectedToNode(edgeElement, nodeId)) {
+        edgeElement.classList.add('highlighted-edge');
+      } else {
+        edgeElement.classList.add('dimmed-edge');
+      }
+    });
+  }
+
+  private isNodeConnectedTo(nodeId: string, targetNodeId: string): boolean {
+    // Check if there's an edge between nodeId and targetNodeId
+    const edges = this.svg.querySelectorAll('.edge-line');
+
+    for (const edge of edges) {
+      const edgeElement = edge as SVGElement;
+      if (
+        this.isEdgeConnecting(edgeElement, nodeId, targetNodeId) ||
+        this.isEdgeConnecting(edgeElement, targetNodeId, nodeId)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private isEdgeConnectedToNode(edgeElement: SVGElement, nodeId: string): boolean {
+    // Get all nodes and check if the edge connects to the specified node
+    const nodes = this.svg.querySelectorAll('.node');
+
+    for (const nodeGroup of nodes) {
+      const nodeElement = nodeGroup as SVGElement;
+      const text = nodeElement.querySelector('.node-label') as SVGElement;
+
+      if (text?.textContent !== nodeId) {
+        const otherNodeId = text?.textContent || '';
+        if (
+          this.isEdgeConnecting(edgeElement, nodeId, otherNodeId) ||
+          this.isEdgeConnecting(edgeElement, otherNodeId, nodeId)
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private isEdgeConnecting(edgeElement: SVGElement, fromNodeId: string, toNodeId: string): boolean {
@@ -249,8 +336,8 @@ export class SvgRenderer {
     if (!fromNode || !toNode) return false;
 
     // Extract node positions from transform attributes
-    const fromTransform = fromNode.getAttribute('transform') || '';
-    const toTransform = toNode.getAttribute('transform') || '';
+    const fromTransform = (fromNode as SVGElement).getAttribute('transform') || '';
+    const toTransform = (toNode as SVGElement).getAttribute('transform') || '';
 
     const fromMatch = fromTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
     const toMatch = toTransform.match(/translate\(([^,]+),\s*([^)]+)\)/);
@@ -279,10 +366,12 @@ export class SvgRenderer {
 
     // Check if edge coordinates match (with some tolerance for floating point errors)
     const tolerance = 1;
-    return Math.abs(x1 - expectedStartX) < tolerance &&
-           Math.abs(y1 - expectedStartY) < tolerance &&
-           Math.abs(x2 - expectedEndX) < tolerance &&
-           Math.abs(y2 - expectedEndY) < tolerance;
+    return (
+      Math.abs(x1 - expectedStartX) < tolerance &&
+      Math.abs(y1 - expectedStartY) < tolerance &&
+      Math.abs(x2 - expectedEndX) < tolerance &&
+      Math.abs(y2 - expectedEndY) < tolerance
+    );
   }
 
   private setupArrowMarker(): void {
@@ -338,29 +427,34 @@ export class SvgRenderer {
   }
 
   // Node hover handlers
-  onNodeHover(
-    onMouseEnter: (nodeId: string) => void,
-    onMouseLeave: () => void
-  ): void {
-    this.svg.addEventListener('mouseenter', (e) => {
-      const target = e.target as HTMLElement;
-      const nodeGroup = target.closest('.node') as SVGElement;
+  onNodeHover(onMouseEnter: (nodeId: string) => void, onMouseLeave: () => void): void {
+    this.svg.addEventListener(
+      'mouseenter',
+      (e) => {
+        const target = e.target as HTMLElement;
+        const nodeGroup = target.closest('.node') as SVGElement;
 
-      if (nodeGroup) {
-        const nodeLabel = nodeGroup.querySelector('.node-label') as SVGElement;
-        if (nodeLabel && nodeLabel.textContent) {
-          onMouseEnter(nodeLabel.textContent);
+        if (nodeGroup) {
+          const nodeLabel = nodeGroup.querySelector('.node-label') as SVGElement;
+          if (nodeLabel?.textContent) {
+            onMouseEnter(nodeLabel.textContent);
+          }
         }
-      }
-    }, true);
+      },
+      true
+    );
 
-    this.svg.addEventListener('mouseleave', (e) => {
-      const target = e.target as HTMLElement;
-      const nodeGroup = target.closest('.node') as SVGElement;
+    this.svg.addEventListener(
+      'mouseleave',
+      (e) => {
+        const target = e.target as HTMLElement;
+        const nodeGroup = target.closest('.node') as SVGElement;
 
-      if (nodeGroup) {
-        onMouseLeave();
-      }
-    }, true);
+        if (nodeGroup) {
+          onMouseLeave();
+        }
+      },
+      true
+    );
   }
 }

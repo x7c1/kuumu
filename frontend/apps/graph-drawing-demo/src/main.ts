@@ -138,9 +138,11 @@ class GraphDrawingApp {
     this.renderer.onNodeHover(
       (nodeId: string) => {
         this.uiControls.highlightDependenciesForNode(nodeId);
+        this.renderer.highlightDependenciesForNode(nodeId);
       },
       () => {
         this.uiControls.clearDependencyHighlight();
+        this.renderer.clearHighlight();
       }
     );
   }

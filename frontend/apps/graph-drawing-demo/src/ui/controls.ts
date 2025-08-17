@@ -523,28 +523,36 @@ export class UIControls {
     onMouseEnter: (fromNodeId: string, toNodeId: string) => void,
     onMouseLeave: () => void
   ): void {
-    this.dependencyItems.addEventListener('mouseenter', (e) => {
-      const target = e.target as HTMLElement;
-      const dependencyItem = target.closest('.dependency-item') as HTMLElement;
+    this.dependencyItems.addEventListener(
+      'mouseenter',
+      (e) => {
+        const target = e.target as HTMLElement;
+        const dependencyItem = target.closest('.dependency-item') as HTMLElement;
 
-      if (dependencyItem) {
-        const fromNodeId = dependencyItem.dataset.from;
-        const toNodeId = dependencyItem.dataset.to;
+        if (dependencyItem) {
+          const fromNodeId = dependencyItem.dataset.from;
+          const toNodeId = dependencyItem.dataset.to;
 
-        if (fromNodeId && toNodeId) {
-          onMouseEnter(fromNodeId, toNodeId);
+          if (fromNodeId && toNodeId) {
+            onMouseEnter(fromNodeId, toNodeId);
+          }
         }
-      }
-    }, true);
+      },
+      true
+    );
 
-    this.dependencyItems.addEventListener('mouseleave', (e) => {
-      const target = e.target as HTMLElement;
-      const dependencyItem = target.closest('.dependency-item') as HTMLElement;
+    this.dependencyItems.addEventListener(
+      'mouseleave',
+      (e) => {
+        const target = e.target as HTMLElement;
+        const dependencyItem = target.closest('.dependency-item') as HTMLElement;
 
-      if (dependencyItem) {
-        onMouseLeave();
-      }
-    }, true);
+        if (dependencyItem) {
+          onMouseLeave();
+        }
+      },
+      true
+    );
   }
 
   // Highlight dependency items in the list
