@@ -65,6 +65,9 @@ class GraphDrawingApp {
     this.updateGraph();
     this.updateUI();
     this.render();
+
+    // Load saved graphs list
+    this.loadSavedGraphsList();
   }
 
   private setupEventHandlers(): void {
@@ -120,9 +123,39 @@ class GraphDrawingApp {
       this.handleSaveGraph();
     });
 
-    this.uiControls.onLoadGraph(() => {
-      this.handleLoadGraph();
+    this.uiControls.onLoadGraph((filename) => {
+      this.handleLoadGraph(filename);
     });
+
+    this.uiControls.onDeleteGraph((filename) => {
+      this.handleDeleteGraph(filename);
+    });
+
+    this.uiControls.onRefreshGraphs(() => {
+      this.loadSavedGraphsList();
+    });
+
+    // Handle dependency hover for highlighting
+    this.uiControls.onDependencyHover(
+      (fromNodeId: string, toNodeId: string) => {
+        this.renderer.highlightDependency(fromNodeId, toNodeId);
+      },
+      () => {
+        this.renderer.clearHighlight();
+      }
+    );
+
+    // Handle node hover for highlighting dependencies
+    this.renderer.onNodeHover(
+      (nodeId: string) => {
+        this.uiControls.highlightDependenciesForNode(nodeId);
+        this.renderer.highlightDependenciesForNode(nodeId);
+      },
+      () => {
+        this.uiControls.clearDependencyHighlight();
+        this.renderer.clearHighlight();
+      }
+    );
   }
 
   private handleDependencyAdd(input: string): void {
@@ -256,7 +289,7 @@ class GraphDrawingApp {
     this.uiControls.hideComparisonModal();
   }
 
-  private handleSaveGraph(): void {
+  private async handleSaveGraph(): Promise<void> {
     const dependencies = this.dependencyTracker.getDependencies();
 
     if (dependencies.length === 0) {
@@ -265,17 +298,19 @@ class GraphDrawingApp {
     }
 
     try {
-      const filename = GraphSerializer.generateFilename('dependency-graph');
-      GraphSerializer.exportToFile(dependencies, filename);
+      const filename = await GraphSerializer.saveToLocalDirectory(dependencies);
+      console.log(`Graph saved as: ${filename}`);
+      // Refresh the saved graphs list
+      this.loadSavedGraphsList();
     } catch (error) {
       console.error('Failed to save graph:', error);
       this.uiControls.showError('Failed to save graph file');
     }
   }
 
-  private async handleLoadGraph(): Promise<void> {
+  private async handleLoadGraph(filename: string): Promise<void> {
     try {
-      const { dependencies } = await GraphSerializer.importFromFile();
+      const { dependencies } = await GraphSerializer.loadFromLocalDirectory(filename);
 
       // Validate the data before loading
       const validationErrors = GraphSerializer.validateGraphData(dependencies);
@@ -299,7 +334,7 @@ class GraphDrawingApp {
       if (loadedCount === 0) {
         this.uiControls.showError('No valid dependencies found in file');
       } else {
-        console.log(`Loaded ${loadedCount} dependencies from file`);
+        console.log(`Loaded ${loadedCount} dependencies from ${filename}`);
       }
     } catch (error) {
       console.error('Failed to load graph:', error);
@@ -308,6 +343,32 @@ class GraphDrawingApp {
       } else {
         this.uiControls.showError('Failed to load graph file');
       }
+    }
+  }
+
+  private async handleDeleteGraph(filename: string): Promise<void> {
+    try {
+      await GraphSerializer.deleteFromLocalDirectory(filename);
+      console.log(`Deleted graph: ${filename}`);
+      // Refresh the saved graphs list
+      this.loadSavedGraphsList();
+    } catch (error) {
+      console.error('Failed to delete graph:', error);
+      if (error instanceof Error) {
+        this.uiControls.showError(`Failed to delete graph: ${error.message}`);
+      } else {
+        this.uiControls.showError('Failed to delete graph file');
+      }
+    }
+  }
+
+  private async loadSavedGraphsList(): Promise<void> {
+    try {
+      const savedGraphs = await GraphSerializer.listSavedGraphs();
+      this.uiControls.updateSavedGraphsList(savedGraphs);
+    } catch (error) {
+      console.error('Failed to load saved graphs list:', error);
+      this.uiControls.updateSavedGraphsList([]);
     }
   }
 
