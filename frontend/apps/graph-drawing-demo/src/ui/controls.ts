@@ -562,9 +562,9 @@ export class UIControls {
     };
 
     const formatSize = (bytes: number): string => {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
-      return Math.round(bytes / (1024 * 1024)) + ' MB';
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+      return `${Math.round(bytes / (1024 * 1024))} MB`;
     };
 
     this.savedGraphsList.innerHTML = graphs

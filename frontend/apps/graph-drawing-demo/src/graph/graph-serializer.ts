@@ -82,8 +82,8 @@ export async function saveToLocalDirectory(
     },
     body: JSON.stringify({
       filename: actualFilename,
-      content: jsonString
-    })
+      content: jsonString,
+    }),
   });
 
   if (!response.ok) {
@@ -121,7 +121,7 @@ export async function loadFromLocalDirectory(filename: string): Promise<{
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename }),
   });
 
   if (!response.ok) {
@@ -139,7 +139,7 @@ export async function deleteFromLocalDirectory(filename: string): Promise<void> 
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename }),
   });
 
   if (!response.ok) {

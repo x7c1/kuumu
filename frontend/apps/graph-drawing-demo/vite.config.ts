@@ -1,8 +1,8 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { devLoggerPlugin, dualLoggerPlugin } from '@kuumu/dev-logger/vite';
 import { defineConfig } from 'vite';
 import { createBaseConfig } from '../vite-config-base';
-import fs from 'fs';
-import path from 'path';
 
 const baseConfig = createBaseConfig({ port: 3002 });
 
@@ -27,7 +27,7 @@ const graphDataPlugin = () => {
         }
 
         let body = '';
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
           body += chunk.toString();
         });
 
@@ -63,15 +63,16 @@ const graphDataPlugin = () => {
         }
 
         try {
-          const files = fs.readdirSync(dataDir)
-            .filter(file => file.endsWith('.json'))
-            .map(file => {
+          const files = fs
+            .readdirSync(dataDir)
+            .filter((file) => file.endsWith('.json'))
+            .map((file) => {
               const filePath = path.join(dataDir, file);
               const stats = fs.statSync(filePath);
               return {
                 name: file,
                 modified: stats.mtime.toISOString(),
-                size: stats.size
+                size: stats.size,
               };
             })
             .sort((a, b) => new Date(b.modified).getTime() - new Date(a.modified).getTime());
@@ -93,7 +94,7 @@ const graphDataPlugin = () => {
         }
 
         let body = '';
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
           body += chunk.toString();
         });
 
@@ -135,7 +136,7 @@ const graphDataPlugin = () => {
         }
 
         let body = '';
-        req.on('data', chunk => {
+        req.on('data', (chunk) => {
           body += chunk.toString();
         });
 
@@ -167,7 +168,7 @@ const graphDataPlugin = () => {
           }
         });
       });
-    }
+    },
   };
 };
 
