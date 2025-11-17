@@ -10,7 +10,7 @@ claude-run: claude-setup setup-role
 	@if [ -n "$$TMUX" ] && [ -n "$$ROLE" ]; then \
 		tmux rename-window "$$ROLE"; \
 	fi
-	docker-compose run --rm claude-code
+	docker compose run --rm claude-code
 
 workspace: claude-run
 
