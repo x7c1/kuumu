@@ -1,31 +1,39 @@
-.PHONY: claude-setup setup-role claude-run workspace pr cargo-test cargo-clippy cargo-fmt cargo-fmt-check
+.PHONY: help claude-setup setup-role claude-run workspace pr cargo-test cargo-clippy cargo-fmt cargo-fmt-check
 
-claude-setup:
+.DEFAULT_GOAL := help
+
+help: ## Show this help message
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Available targets:'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+
+claude-setup: ## Setup Claude container
 	./scripts/setup-claude-container.sh
 
-setup-role:
+setup-role: ## Setup Claude role configuration
 	./scripts/setup-claude-role.sh
 
-claude-run: claude-setup setup-role
+claude-run: claude-setup setup-role ## Run Claude Code in Docker container
 	@if [ -n "$$TMUX" ] && [ -n "$$ROLE" ]; then \
 		tmux rename-window "$$ROLE"; \
 	fi
 	docker compose run --rm claude-code
 
-workspace: claude-run
+workspace: claude-run ## Alias for claude-run
 
-pr:
+pr: ## Create pull request automatically
 	./scripts/create-pr-auto.sh
 
 # Cargo tasks
-cargo-test:
+cargo-test: ## Run all tests in workspace
 	cargo test --workspace
 
-cargo-clippy:
+cargo-clippy: ## Run clippy linter on workspace
 	cargo clippy --workspace -- -D warnings
 
-cargo-fmt:
+cargo-fmt: ## Format all Rust code
 	cargo fmt --all
 
-cargo-fmt-check:
+cargo-fmt-check: ## Check Rust code formatting
 	cargo fmt --check
