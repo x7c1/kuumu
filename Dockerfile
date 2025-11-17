@@ -48,10 +48,11 @@ RUN rustup component add clippy rustfmt
 # Set up npm user-level directory
 RUN mkdir -p /home/developer/.npm-global
 
+RUN mkdir -p /home/developer/.local
+
 # Set up shell environment with npm user prefix
 ENV NPM_CONFIG_PREFIX=/home/developer/.npm-global
-ENV PATH=$PATH:/home/developer/.npm-global/bin:/usr/local/bin
-RUN echo 'export PATH=$PATH:/home/developer/.npm-global/bin:/usr/local/bin' >> ~/.zshrc
+ENV PATH=$PATH:/home/developer/.local/bin:/home/developer/.npm-global/bin:/usr/local/bin
 
 # Default command
 CMD ["zsh"]

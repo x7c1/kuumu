@@ -67,65 +67,85 @@ export function deserialize(jsonString: string): {
   }
 }
 
-export function exportToFile(
+export async function saveToLocalDirectory(
   dependencies: DependencyEntry[],
-  filename: string = 'graph.json',
+  filename?: string,
   metadata?: { name?: string; description?: string }
-): void {
+): Promise<string> {
+  const actualFilename = filename || generateFilename();
   const jsonString = serialize(dependencies, metadata);
-  const blob = new Blob([jsonString], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
 
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const response = await fetch('/api/save-graph', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      filename: actualFilename,
+      content: jsonString,
+    }),
+  });
 
-  URL.revokeObjectURL(url);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to save graph: ${errorText}`);
+  }
+
+  const result = await response.json();
+  return result.filename;
 }
 
-export function importFromFile(): Promise<{
+export interface SavedGraphFile {
+  name: string;
+  modified: string;
+  size: number;
+}
+
+export async function listSavedGraphs(): Promise<SavedGraphFile[]> {
+  const response = await fetch('/api/list-graphs');
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to list graphs: ${errorText}`);
+  }
+
+  return response.json();
+}
+
+export async function loadFromLocalDirectory(filename: string): Promise<{
   dependencies: DependencyEntry[];
   metadata?: { name?: string; description?: string };
 }> {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) {
-        reject(new Error('No file selected'));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const content = e.target?.result as string;
-          const result = deserialize(content);
-          resolve(result);
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      reader.onerror = () => {
-        reject(new Error('Failed to read file'));
-      };
-
-      reader.readAsText(file);
-    };
-
-    input.oncancel = () => {
-      reject(new Error('File selection cancelled'));
-    };
-
-    input.click();
+  const response = await fetch('/api/load-graph', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ filename }),
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to load graph: ${errorText}`);
+  }
+
+  const content = await response.text();
+  return deserialize(content);
+}
+
+export async function deleteFromLocalDirectory(filename: string): Promise<void> {
+  const response = await fetch('/api/delete-graph', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ filename }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to delete graph: ${errorText}`);
+  }
 }
 
 function isCompatibleVersion(version: string): boolean {

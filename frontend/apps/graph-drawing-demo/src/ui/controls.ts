@@ -23,7 +23,8 @@ export class UIControls {
   private fitContentBtn: HTMLElement;
   private zoomLevelSpan: HTMLElement;
   private saveGraphBtn: HTMLElement;
-  private loadGraphBtn: HTMLElement;
+  private savedGraphsList: HTMLElement;
+  private refreshGraphsBtn: HTMLElement;
 
   constructor() {
     this.dependencyInput = document.getElementById('dependency-input') as HTMLInputElement;
@@ -43,7 +44,8 @@ export class UIControls {
     this.fitContentBtn = document.getElementById('fit-content-btn') as HTMLElement;
     this.zoomLevelSpan = document.getElementById('zoom-level') as HTMLElement;
     this.saveGraphBtn = document.getElementById('save-graph-btn') as HTMLElement;
-    this.loadGraphBtn = document.getElementById('load-graph-btn') as HTMLElement;
+    this.savedGraphsList = document.getElementById('saved-graphs-list') as HTMLElement;
+    this.refreshGraphsBtn = document.getElementById('refresh-graphs-btn') as HTMLElement;
 
     if (
       !this.dependencyInput ||
@@ -61,7 +63,8 @@ export class UIControls {
       !this.fitContentBtn ||
       !this.zoomLevelSpan ||
       !this.saveGraphBtn ||
-      !this.loadGraphBtn
+      !this.savedGraphsList ||
+      !this.refreshGraphsBtn
     ) {
       throw new Error('Required UI elements not found');
     }
@@ -107,7 +110,7 @@ export class UIControls {
     this.dependencyItems.innerHTML = dependencies
       .map(
         (dep) => `
-        <div class="dependency-item">
+        <div class="dependency-item" data-from="${dep.label.split('->')[0]}" data-to="${dep.label.split('->')[1]}">
           <span class="dependency-text">${dep.id}:${dep.label}</span>
           <button class="remove-btn" data-id="${dep.id}" title="Remove dependency">×</button>
         </div>
@@ -514,7 +517,135 @@ export class UIControls {
     this.saveGraphBtn.addEventListener('click', callback);
   }
 
-  onLoadGraph(callback: () => void): void {
-    this.loadGraphBtn.addEventListener('click', callback);
+  onLoadGraph(callback: (filename: string) => void): void {
+    this.savedGraphsList.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('load-graph-item')) {
+        const filename = target.dataset.filename;
+        if (filename) {
+          callback(filename);
+        }
+      }
+    });
+  }
+
+  onDeleteGraph(callback: (filename: string) => void): void {
+    this.savedGraphsList.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains('delete-graph-btn')) {
+        const filename = target.dataset.filename;
+        if (filename) {
+          callback(filename);
+        }
+      }
+    });
+  }
+
+  onRefreshGraphs(callback: () => void): void {
+    this.refreshGraphsBtn.addEventListener('click', callback);
+  }
+
+  updateSavedGraphsList(graphs: Array<{ name: string; modified: string; size: number }>): void {
+    if (graphs.length === 0) {
+      this.savedGraphsList.innerHTML = '<div class="no-saved-graphs">No saved graphs found</div>';
+      return;
+    }
+
+    const formatDate = (dateString: string): string => {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
+
+    const formatSize = (bytes: number): string => {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+      return `${Math.round(bytes / (1024 * 1024))} MB`;
+    };
+
+    this.savedGraphsList.innerHTML = graphs
+      .map(
+        (graph) => `
+          <div class="saved-graph-item">
+            <div class="graph-info">
+              <div class="graph-name">${graph.name}</div>
+              <div class="graph-meta">
+                <span class="graph-date">${formatDate(graph.modified)}</span>
+                <span class="graph-size">${formatSize(graph.size)}</span>
+              </div>
+            </div>
+            <div class="graph-actions">
+              <button class="load-graph-item" data-filename="${graph.name}" title="Load graph">Load</button>
+              <button class="delete-graph-btn" data-filename="${graph.name}" title="Delete graph">×</button>
+            </div>
+          </div>
+        `
+      )
+      .join('');
+  }
+
+  // Dependency hover handlers
+  onDependencyHover(
+    onMouseEnter: (fromNodeId: string, toNodeId: string) => void,
+    onMouseLeave: () => void
+  ): void {
+    this.dependencyItems.addEventListener(
+      'mouseenter',
+      (e) => {
+        const target = e.target as HTMLElement;
+        const dependencyItem = target.closest('.dependency-item') as HTMLElement;
+
+        if (dependencyItem) {
+          const fromNodeId = dependencyItem.dataset.from;
+          const toNodeId = dependencyItem.dataset.to;
+
+          if (fromNodeId && toNodeId) {
+            onMouseEnter(fromNodeId, toNodeId);
+          }
+        }
+      },
+      true
+    );
+
+    this.dependencyItems.addEventListener(
+      'mouseleave',
+      (e) => {
+        const target = e.target as HTMLElement;
+        const dependencyItem = target.closest('.dependency-item') as HTMLElement;
+
+        if (dependencyItem) {
+          onMouseLeave();
+        }
+      },
+      true
+    );
+  }
+
+  // Highlight dependency items in the list
+  highlightDependenciesForNode(nodeId: string): void {
+    const dependencyItems = this.dependencyItems.querySelectorAll('.dependency-item');
+
+    dependencyItems.forEach((item) => {
+      const element = item as HTMLElement;
+      const fromNodeId = element.dataset.from;
+      const toNodeId = element.dataset.to;
+
+      if (fromNodeId === nodeId || toNodeId === nodeId) {
+        element.classList.add('dependency-highlighted');
+      } else {
+        element.classList.add('dependency-dimmed');
+      }
+    });
+  }
+
+  clearDependencyHighlight(): void {
+    const dependencyItems = this.dependencyItems.querySelectorAll('.dependency-item');
+    dependencyItems.forEach((item) => {
+      item.classList.remove('dependency-highlighted', 'dependency-dimmed');
+    });
   }
 }

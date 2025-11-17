@@ -19,15 +19,18 @@ if [ ${#title} -gt 60 ]; then
 fi
 
 # Check for unnecessary content in description
-if echo "$description" | grep -q "Files Added"; then
-    echo "Error: Description contains unnecessary 'Files Added' section - please remove it"
-    exit 1
-fi
-
-if echo "$description" | grep -q "Files Modified"; then
-    echo "Error: Description contains unnecessary 'Files Modified' section - please remove it"
-    exit 1
-fi
+forbidden_patterns=(
+    "Files Added"
+    "Files Modified"
+    "Files Changed"
+    "Generated with"
+)
+for pattern in "${forbidden_patterns[@]}"; do
+    if echo "$description" | grep -q "$pattern"; then
+        echo "Error: Description contains unnecessary '$pattern' section - please remove it"
+        exit 1
+    fi
+done
 
 # Update PR
 gh pr edit "$pr_number" --title "$title" --body "$description"
