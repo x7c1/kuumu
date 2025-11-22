@@ -18,6 +18,7 @@ sudo apt-get install -y \
     patchelf \
     libsoup-3.0-dev \
     libjavascriptcoregtk-4.1-dev \
+    yq \
     jq
 
 echo "Common Ubuntu dependencies installed successfully!"
