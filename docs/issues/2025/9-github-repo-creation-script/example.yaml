@@ -1,0 +1,40 @@
+# Example configuration for GitHub repository creation script
+#
+# Usage:
+# ./scripts/new-github-repo.sh example.yaml
+
+# Repository name (required)
+name: my-awesome-project
+
+# Repository description (optional)
+description: A sample project demonstrating automated GitHub repository setup
+
+# Repository visibility (optional, default: public)
+visibility: public
+
+# Default branch name (optional, default: main)
+default_branch: main
+
+# Automatically delete head branches after pull requests are merged (optional, default: true)
+delete_branch_on_merge: true
+
+# Merge method settings (optional, defaults shown below)
+merge_methods:
+  # Allow squash merging pull requests
+  allow_squash_merge: true
+  # Allow merge commits for pull requests
+  allow_merge_commit: false
+  # Allow rebase merging pull requests
+  allow_rebase_merge: false
+
+# Branch protection rules for the default branch (optional, defaults shown below)
+branch_protection:
+  # Number of required approving reviews (optional, default: 1)
+  required_approving_review_count: 1
+  # Require status checks to pass before merging (optional, default: true)
+  require_status_checks: true
+  # Permit force pushes (optional, default: false)
+  allow_force_pushes: false
+  # Enforce all configured restrictions for administrators (optional, default: true)
+  enforce_admins: true
+
